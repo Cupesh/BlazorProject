@@ -10,30 +10,30 @@ using System.Threading.Tasks;
 
 namespace BlazorProject.WebAPI.Models.Queries
 {
-    public class EmployeesQuery
+    public class PayRatesQuery
     {
         public AppDb Db { get; }
 
-        public EmployeesQuery(AppDb db)
+        public PayRatesQuery(AppDb db)
         {
             Db = db;
         }
 
-        public async Task<List<Employee>> RetrieveAll()
+        public async Task<List<PayRate>> RetrieveAll()
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"SELECT * FROM employees";
+            cmd.CommandText = @"SELECT * FROM pay_rates";
 
             var result = await ReadAll(await cmd.ExecuteReaderAsync());
 
             return result;
         }
 
-        public async Task<Employee> RetrieveOne(int id)
+        public async Task<PayRate> RetrieveOne(int id)
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"SELECT id, first_name, last_name, date_of_birth, position, date_joined, updated 
-                                FROM employees WHERE id = @id";
+            cmd.CommandText = @"SELECT id, description, rate, updated 
+                                FROM pay_rates WHERE id = @id";
             cmd.Parameters.Add(new MySqlParameter
             {
                 ParameterName = "@id",
@@ -44,23 +44,22 @@ namespace BlazorProject.WebAPI.Models.Queries
             return result.Count > 0 ? result[0] : null;
         }
 
-        public async Task<IActionResult> CreateOne(Employee employee)
+        public async Task<IActionResult> CreateOne(PayRate payRate)
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"INSERT INTO employees (id, first_name, last_name, date_of_birth, position, date_joined) 
-                                VALUES (@id, @first_name, @last_name, @date_of_birth, @position, @date_joined);";
-            employee.BindParams(cmd);
+            cmd.CommandText = @"INSERT INTO pay_rates (id, description, rate)
+                                VALUES (@id, @description, @rate)";
+            payRate.BindParams(cmd);
             var result = await cmd.ExecuteNonQueryAsync();
 
             return new OkObjectResult(result);
         }
 
-        public async Task<IActionResult> UpdateOne(Employee employee)
+        public async Task<IActionResult> UpdateOne(PayRate payRate)
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"UPDATE employees SET first_name = @first_name, last_name = @last_name, 
-                                date_of_birth = @last_name, position = @position, date_joined = @date_joined WHERE id = @id";
-            employee.BindParams(cmd);
+            cmd.CommandText = @"UPDATE pay_rates SET description = @description, rate = @rate WHERE id = @id";
+            payRate.BindParams(cmd);
             var result = await cmd.ExecuteNonQueryAsync();
 
             return new OkObjectResult(result);
@@ -69,7 +68,7 @@ namespace BlazorProject.WebAPI.Models.Queries
         public async Task<IActionResult> DeleteOne(int id)
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"DELETE FROM employees WHERE id = @id";
+            cmd.CommandText = @"DELETE FROM pay_rates WHERE id = @id";
             cmd.Parameters.Add(new MySqlParameter
             {
                 ParameterName = "@id",
@@ -80,28 +79,25 @@ namespace BlazorProject.WebAPI.Models.Queries
             return new OkObjectResult(result);
         }
 
-        public async Task<List<Employee>> ReadAll(DbDataReader reader)
+        public async Task<List<PayRate>> ReadAll(DbDataReader reader)
         {
-            var employees = new List<Employee>();
+            var payRates = new List<PayRate>();
 
             using (reader)
             {
                 while (await reader.ReadAsync())
                 {
-                    var employee = new Employee(Db)
+                    var payRate = new PayRate(Db)
                     {
                         Id = reader.GetInt32(0),
-                        FirstName = reader.GetString(1),
-                        LastName = reader.GetString(2),
-                        DateOfBirth = reader.GetDateTime(3),
-                        Position = reader.GetInt32(4),
-                        DateJoined = reader.GetDateTime(5),
-                        Updated = reader.GetDateTime(6)
+                        Description = reader.GetString(1),
+                        Rate = reader.GetDecimal(2),
+                        Updated = reader.GetDateTime(3)
                     };
-                    employees.Add(employee);
+                    payRates.Add(payRate);
                 }
             }
-            return employees;
+            return payRates;
         }
     }
 }

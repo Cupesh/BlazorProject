@@ -8,23 +8,21 @@ using System.Threading.Tasks;
 
 namespace BlazorProject.WebAPI.Models
 {
-    public class Employee
+    public class Client
     {
         public int Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public DateTime DateOfBirth { get; set; }
-        public int Position { get; set; }
-        public DateTime DateJoined { get; set; } = DateTime.Now;
-        public DateTime Updated { get; set; }
-
+        public string Name { get; set; }
+        public string Address { get; set; }
+        public int PayRate1 { get; set; }
+        public int PayRate2 { get; set; }
+        public DateTime Updated {get;set;}
         internal AppDb Db { get; set; }
 
-        public Employee()
+        public Client()
         {
         }
 
-        public Employee(AppDb db)
+        public Client(AppDb db)
         {
             Db = db;
         }
@@ -40,34 +38,28 @@ namespace BlazorProject.WebAPI.Models
 
             cmd.Parameters.Add(new MySqlParameter
             {
-                ParameterName = "@first_name",
+                ParameterName = "@name",
                 DbType = DbType.String,
-                Value = FirstName
+                Value = Name
             });
 
             cmd.Parameters.Add(new MySqlParameter
             {
-                ParameterName = "@last_name",
+                ParameterName = "@address",
                 DbType = DbType.String,
-                Value = LastName
+                Value = Address
             });
             cmd.Parameters.Add(new MySqlParameter
             {
-                ParameterName = "@date_of_birth",
-                DbType = DbType.DateTime,
-                Value = DateOfBirth
-            });
-            cmd.Parameters.Add(new MySqlParameter
-            {
-                ParameterName = "@position",
+                ParameterName = "@pay_rate_1",
                 DbType = DbType.Int32,
-                Value = Position
+                Value = PayRate1
             });
             cmd.Parameters.Add(new MySqlParameter
             {
-                ParameterName = "@date_joined",
-                DbType = DbType.DateTime,
-                Value = DateJoined
+                ParameterName = "@pay_rate_2",
+                DbType = DbType.Int32,
+                Value = PayRate2
             });
             cmd.Parameters.Add(new MySqlParameter
             {

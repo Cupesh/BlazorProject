@@ -8,23 +8,24 @@ using System.Threading.Tasks;
 
 namespace BlazorProject.WebAPI.Models
 {
-    public class Employee
+    public class Contract
     {
         public int Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public DateTime DateOfBirth { get; set; }
-        public int Position { get; set; }
-        public DateTime DateJoined { get; set; } = DateTime.Now;
+        public string Description { get; set; }
+        public int Contractor { get; set; }
+        public int Worker { get; set; }
+        public int HoursWorked { get; set; }
+        public DateTime DateRequested { get; set; }
+        public bool Completed { get; set; } = false;
         public DateTime Updated { get; set; }
 
         internal AppDb Db { get; set; }
 
-        public Employee()
+        public Contract()
         {
         }
 
-        public Employee(AppDb db)
+        public Contract(AppDb db)
         {
             Db = db;
         }
@@ -40,34 +41,40 @@ namespace BlazorProject.WebAPI.Models
 
             cmd.Parameters.Add(new MySqlParameter
             {
-                ParameterName = "@first_name",
+                ParameterName = "@description",
                 DbType = DbType.String,
-                Value = FirstName
+                Value = Description
             });
 
             cmd.Parameters.Add(new MySqlParameter
             {
-                ParameterName = "@last_name",
-                DbType = DbType.String,
-                Value = LastName
-            });
-            cmd.Parameters.Add(new MySqlParameter
-            {
-                ParameterName = "@date_of_birth",
-                DbType = DbType.DateTime,
-                Value = DateOfBirth
-            });
-            cmd.Parameters.Add(new MySqlParameter
-            {
-                ParameterName = "@position",
+                ParameterName = "@contractor",
                 DbType = DbType.Int32,
-                Value = Position
+                Value = Contractor
             });
             cmd.Parameters.Add(new MySqlParameter
             {
-                ParameterName = "@date_joined",
+                ParameterName = "@worker",
+                DbType = DbType.Int32,
+                Value = Worker
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@hours_worked",
+                DbType = DbType.Int32,
+                Value = HoursWorked
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@date_requested",
                 DbType = DbType.DateTime,
-                Value = DateJoined
+                Value = DateRequested
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@completed",
+                DbType = DbType.Boolean,
+                Value = Completed
             });
             cmd.Parameters.Add(new MySqlParameter
             {

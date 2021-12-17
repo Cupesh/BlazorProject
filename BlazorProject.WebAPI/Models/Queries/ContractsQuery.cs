@@ -10,30 +10,30 @@ using System.Threading.Tasks;
 
 namespace BlazorProject.WebAPI.Models.Queries
 {
-    public class EmployeesQuery
+    public class ContractsQuery
     {
         public AppDb Db { get; }
 
-        public EmployeesQuery(AppDb db)
+        public ContractsQuery(AppDb db)
         {
             Db = db;
         }
 
-        public async Task<List<Employee>> RetrieveAll()
+        public async Task<List<Contract>> RetrieveAll()
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"SELECT * FROM employees";
+            cmd.CommandText = @"SELECT * FROM contracts";
 
             var result = await ReadAll(await cmd.ExecuteReaderAsync());
 
             return result;
         }
 
-        public async Task<Employee> RetrieveOne(int id)
+        public async Task<Contract> RetrieveOne(int id)
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"SELECT id, first_name, last_name, date_of_birth, position, date_joined, updated 
-                                FROM employees WHERE id = @id";
+            cmd.CommandText = @"SELECT id, description, contractor, worker, hours_worked, date_requested, completed, updated 
+                                FROM contracts WHERE id = @id";
             cmd.Parameters.Add(new MySqlParameter
             {
                 ParameterName = "@id",
@@ -44,23 +44,24 @@ namespace BlazorProject.WebAPI.Models.Queries
             return result.Count > 0 ? result[0] : null;
         }
 
-        public async Task<IActionResult> CreateOne(Employee employee)
+        public async Task<IActionResult> CreateOne(Contract contract)
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"INSERT INTO employees (id, first_name, last_name, date_of_birth, position, date_joined) 
-                                VALUES (@id, @first_name, @last_name, @date_of_birth, @position, @date_joined);";
-            employee.BindParams(cmd);
+            cmd.CommandText = @"INSERT INTO contracts (id, description, contractor, worker, hours_worked, date_requested, completed)
+                                VALUES (@id, @description, @contractor, @worker, @hours_worked, @date_requested, @completed)";
+            contract.BindParams(cmd);
             var result = await cmd.ExecuteNonQueryAsync();
 
             return new OkObjectResult(result);
         }
 
-        public async Task<IActionResult> UpdateOne(Employee employee)
+        public async Task<IActionResult> UpdateOne(Contract contract)
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"UPDATE employees SET first_name = @first_name, last_name = @last_name, 
-                                date_of_birth = @last_name, position = @position, date_joined = @date_joined WHERE id = @id";
-            employee.BindParams(cmd);
+            cmd.CommandText = @"UPDATE contracts SET description = @description, contractor = @contractor, 
+                                worker = @worker, hours_worked = @hours_worked, date_requested = @date_requested,
+                                completed = @completed WHERE id = @id";
+            contract.BindParams(cmd);
             var result = await cmd.ExecuteNonQueryAsync();
 
             return new OkObjectResult(result);
@@ -69,7 +70,7 @@ namespace BlazorProject.WebAPI.Models.Queries
         public async Task<IActionResult> DeleteOne(int id)
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"DELETE FROM employees WHERE id = @id";
+            cmd.CommandText = @"DELETE FROM contracts WHERE id = @id";
             cmd.Parameters.Add(new MySqlParameter
             {
                 ParameterName = "@id",
@@ -80,28 +81,29 @@ namespace BlazorProject.WebAPI.Models.Queries
             return new OkObjectResult(result);
         }
 
-        public async Task<List<Employee>> ReadAll(DbDataReader reader)
+        public async Task<List<Contract>> ReadAll(DbDataReader reader)
         {
-            var employees = new List<Employee>();
+            var contracts = new List<Contract>();
 
             using (reader)
             {
                 while (await reader.ReadAsync())
                 {
-                    var employee = new Employee(Db)
+                    var contract = new Contract(Db)
                     {
                         Id = reader.GetInt32(0),
-                        FirstName = reader.GetString(1),
-                        LastName = reader.GetString(2),
-                        DateOfBirth = reader.GetDateTime(3),
-                        Position = reader.GetInt32(4),
-                        DateJoined = reader.GetDateTime(5),
-                        Updated = reader.GetDateTime(6)
+                        Description = reader.GetString(1),
+                        Contractor = reader.GetInt32(2),
+                        Worker = reader.GetInt32(3),
+                        HoursWorked = reader.GetInt32(4),
+                        DateRequested = reader.GetDateTime(5),
+                        Completed = reader.GetBoolean(6),
+                        Updated = reader.GetDateTime(7)
                     };
-                    employees.Add(employee);
+                    contracts.Add(contract);
                 }
             }
-            return employees;
+            return contracts;
         }
     }
 }
