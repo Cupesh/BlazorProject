@@ -27,13 +27,7 @@ namespace BlazorProject.WebAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors(options =>
-            {
-                options.AddDefaultPolicy(builder =>
-                builder.WithOrigins("https://localhost:44374")
-                       .AllowAnyMethod()
-                       .AllowAnyHeader());
-            });
+            services.AddCors();
             services.AddControllers();
             services.AddTransient<AppDb>(_ => new AppDb(Configuration["ConnectionStrings:DefaultConnection"]));
             services.AddSwaggerGen(options =>
@@ -55,6 +49,13 @@ namespace BlazorProject.WebAPI
                         Url = new Uri("https://www.mit.edu/~amini/LICENSE.md")
                     }
                 });
+            });
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(builder =>
+                builder.WithOrigins("https://localhost:44358")
+                       .AllowAnyMethod()
+                       .AllowAnyHeader());
             });
         }
 

@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31911.196
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorProject.Client", "BlazorProject.Client\BlazorProject.Client.csproj", "{A49F7B13-47AF-477B-A443-18D33FCACB4C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorProject.Client", "BlazorProject.Client\BlazorProject.Client.csproj", "{A49F7B13-47AF-477B-A443-18D33FCACB4C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorProject.WebAPI", "BlazorProject.WebAPI\BlazorProject.WebAPI.csproj", "{C0518995-9422-4CD8-A04A-19879DE05B58}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorProject.WebAPI", "BlazorProject.WebAPI\BlazorProject.WebAPI.csproj", "{C0518995-9422-4CD8-A04A-19879DE05B58}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

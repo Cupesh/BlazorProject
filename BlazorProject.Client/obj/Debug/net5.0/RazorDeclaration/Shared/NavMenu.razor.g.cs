@@ -27,13 +27,6 @@ using System.Net.Http.Json;
 #line hidden
 #nullable disable
 #nullable restore
-#line 3 "C:\Users\cupak\source\repos\BlazorProject\BlazorProject.Client\_Imports.razor"
-using Microsoft.AspNetCore.Components.Authorization;
-
-#line default
-#line hidden
-#nullable disable
-#nullable restore
 #line 4 "C:\Users\cupak\source\repos\BlazorProject\BlazorProject.Client\_Imports.razor"
 using Microsoft.AspNetCore.Components.Forms;
 
@@ -97,7 +90,7 @@ using BlazorProject.Client.Shared;
         }
         #pragma warning restore 1998
 #nullable restore
-#line 28 "C:\Users\cupak\source\repos\BlazorProject\BlazorProject.Client\Shared\NavMenu.razor"
+#line 33 "C:\Users\cupak\source\repos\BlazorProject\BlazorProject.Client\Shared\NavMenu.razor"
        
     private bool collapseNavMenu = true;
 

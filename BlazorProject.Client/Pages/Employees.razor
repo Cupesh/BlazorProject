@@ -1,0 +1,53 @@
+﻿@page "/employees"
+
+@using BlazorProject.Client.HttpRepository
+@using BlazorProject.Client.Models
+@inject HttpClient Http
+@inject IEmployeesHttpRepository EmployeesHttpRepo
+@inject NavigationManager NavManager
+
+<h3>Employees</h3>
+
+@if (employees == null) {
+    <p><em>Loading...</em></p>
+}
+else{
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var employee in employees)
+            {
+            <tr>
+                <td>@employee.Id</td>
+                <td>@employee.FirstName</td>
+                <td>@employee.LastName</td>
+                <td><button class="btn btn-primary" @onclick="() => ViewEdit(employee.Id)">View/Edit</button></td>
+            </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code
+{
+    List<BlazorProject.Client.Models.Employee> employees;
+    BlazorProject.Client.Models.Employee employee;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await EmployeesHttpRepo.GetAll();
+
+        employees = result.ToList();
+    }
+
+    private void ViewEdit(int id)
+    {
+        NavManager.NavigateTo("/employeedata/" + id);
+    }
+}

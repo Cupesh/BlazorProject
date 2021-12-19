@@ -27,13 +27,6 @@ using System.Net.Http.Json;
 #line hidden
 #nullable disable
 #nullable restore
-#line 3 "C:\Users\cupak\source\repos\BlazorProject\BlazorProject.Client\_Imports.razor"
-using Microsoft.AspNetCore.Components.Authorization;
-
-#line default
-#line hidden
-#nullable disable
-#nullable restore
 #line 4 "C:\Users\cupak\source\repos\BlazorProject\BlazorProject.Client\_Imports.razor"
 using Microsoft.AspNetCore.Components.Forms;
 

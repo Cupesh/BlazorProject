@@ -27,13 +27,6 @@ using System.Net.Http.Json;
 #line hidden
 #nullable disable
 #nullable restore
-#line 3 "C:\Users\cupak\source\repos\BlazorProject\BlazorProject.Client\_Imports.razor"
-using Microsoft.AspNetCore.Components.Authorization;
-
-#line default
-#line hidden
-#nullable disable
-#nullable restore
 #line 4 "C:\Users\cupak\source\repos\BlazorProject\BlazorProject.Client\_Imports.razor"
 using Microsoft.AspNetCore.Components.Forms;
 
@@ -89,14 +82,6 @@ using BlazorProject.Client.Shared;
 #line default
 #line hidden
 #nullable disable
-#nullable restore
-#line 2 "C:\Users\cupak\source\repos\BlazorProject\BlazorProject.Client\Pages\Authentication.razor"
-using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
-
-#line default
-#line hidden
-#nullable disable
-    [Microsoft.AspNetCore.Components.RouteAttribute("/authentication/{action}")]
     public partial class Authentication : Microsoft.AspNetCore.Components.ComponentBase
     {
         #pragma warning disable 1998
@@ -104,14 +89,6 @@ using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
         {
         }
         #pragma warning restore 1998
-#nullable restore
-#line 5 "C:\Users\cupak\source\repos\BlazorProject\BlazorProject.Client\Pages\Authentication.razor"
-      
-    [Parameter] public string Action { get; set; }
-
-#line default
-#line hidden
-#nullable disable
     }
 }
 #pragma warning restore 1591

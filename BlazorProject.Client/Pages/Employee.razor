@@ -1,0 +1,54 @@
+﻿@page "/employeedata/{id}"
+
+@using BlazorProject.Client.HttpRepository
+@using BlazorProject.Client.Models
+@inject HttpClient Http
+@inject IEmployeesHttpRepository EmployeesHttpRepo
+
+<h3>Employee</h3>
+
+@if (employee == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Date of birth</th>
+                <th>Position</th>
+                <th>Joined</th>
+                <th>Last updated</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@employee.Id</td>
+                <td>@employee.FirstName</td>
+                <td>@employee.LastName</td>
+                <td>@employee.DateOfBirth.ToString("dd/MM/yyyy")</td>
+                <td>@employee.Position</td>
+                <td>@employee.DateJoined.ToString("dd/MM/yyyy")</td>
+                <td>@employee.Updated.ToString("dd/MM/yyyy HH:mm:ss")</td>
+            </tr>
+        </tbody>
+    </table>
+}
+
+@code
+{
+    BlazorProject.Client.Models.Employee employee;
+
+    [Parameter]
+    public string id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        int anId = Int32.Parse(id);
+        employee = await EmployeesHttpRepo.GetOne(anId);
+    }
+}
