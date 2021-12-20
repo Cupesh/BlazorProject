@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using BlazorProject.WebAPI.Models.Queries;
+using System.Text.Json;
 
 namespace BlazorProject.WebAPI.Controllers.v1
 {
@@ -41,8 +42,10 @@ namespace BlazorProject.WebAPI.Controllers.v1
         }
 
         [HttpPost("api/v1/employees/new")]
-        public async Task<IActionResult> Post([FromBody] Employee employee)
+        public async Task<IActionResult> Post([FromBody] string anEmployee)
         {
+            // how to make it aoutmatically bind to make the method accept an object and not a string?
+            Employee employee = JsonSerializer.Deserialize<Employee>(anEmployee);
             await Db.Connection.OpenAsync();
             var query = new EmployeesQuery(Db);
             var result = await query.CreateOne(employee);
@@ -67,7 +70,7 @@ namespace BlazorProject.WebAPI.Controllers.v1
             return Ok(result);
         }
 
-        [HttpDelete("api/v1/employees/delete")]
+        [HttpDelete("api/v1/employees/delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             await Db.Connection.OpenAsync();
@@ -77,7 +80,15 @@ namespace BlazorProject.WebAPI.Controllers.v1
                 return new NotFoundResult();
             var result = await query.DeleteOne(id);
             return Ok(result);
+        }
 
+        [HttpGet("api/v1/employees/lastid")]
+        public async Task<IActionResult> GetLastId()
+        {
+            await Db.Connection.OpenAsync();
+            var query = new EmployeesQuery(Db);
+            var result = await query.RetrieveLastId();
+            return Ok(result);
         }
     }
 }

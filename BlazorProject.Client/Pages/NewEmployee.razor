@@ -1,0 +1,80 @@
+﻿@page "/newemployee"
+
+@using BlazorProject.Client.HttpRepository
+@using BlazorProject.Client.Models
+@inject HttpClient Http
+@inject IEmployeesHttpRepository EmployeesHttpRepo
+@inject NavigationManager NavManager
+
+<h3>Create A New Employee</h3>
+
+@if (LastId == 0)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <EditForm Model="@employeeFormModel" OnValidSubmit="@Submit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <dl>
+            <dt>Id Number</dt>
+            <dd><InputNumber @bind-Value="LastId" disabled="true" /></dd>
+
+            <dt>First Name</dt>
+            <dd><InputText @bind-Value="employeeFormModel.FirstName" /></dd>
+
+            <dt>Surname</dt>
+            <dd><InputText @bind-Value="employeeFormModel.LastName" /></dd>
+
+            <dt>Date Of Birth</dt>
+            <dd><InputDate @bind-Value="employeeFormModel.DateOfBirth" /></dd>
+
+            <dt>Job Title</dt>
+            <dd>
+                <InputSelect @bind-Value="employeeFormModel.Position">
+                    <option>Labourer</option>
+                    <option>Specialist</option>
+                </InputSelect>
+            </dd>
+
+            <dt>Join Date</dt>
+            <dd><InputDate @bind-Value="employeeFormModel.DateJoined" /></dd>
+        </dl>
+        <button type="submit">Add new employee</button>
+    </EditForm>
+}
+
+@code
+{
+    private EmployeeFormModel employeeFormModel = new();
+    private int LastId = 0;
+    private Models.Employee newEmployee = new Models.Employee();
+
+    protected override async Task OnInitializedAsync()
+    {
+        LastId = await EmployeesHttpRepo.GetLastId();
+    }
+
+    private async void Submit()
+    {
+        newEmployee.Id = LastId;
+        newEmployee.FirstName = employeeFormModel.FirstName;
+        newEmployee.LastName = employeeFormModel.LastName;
+        newEmployee.DateOfBirth = employeeFormModel.DateOfBirth;
+        if (employeeFormModel.Position == "Labourer")
+        {
+            newEmployee.Position = 1;
+        }
+        else if (employeeFormModel.Position == "Specialist")
+        {
+            newEmployee.Position = 2;
+        }
+        newEmployee.DateJoined = employeeFormModel.DateJoined;
+
+        await EmployeesHttpRepo.PostOne(newEmployee);
+
+        NavManager.NavigateTo("/employees");
+    }
+}
+

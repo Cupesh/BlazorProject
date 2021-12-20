@@ -10,5 +10,8 @@ namespace BlazorProject.Client.HttpRepository
     {
         Task<List<Employee>> GetAll();
         Task<Employee> GetOne(int id);
+        Task DeleteOne(int id);
+        Task PostOne(Employee employee);
+        Task<int> GetLastId();
     }
 }

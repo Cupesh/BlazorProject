@@ -13,6 +13,11 @@ namespace BlazorProject.Client.Models
         public DateTime DateOfBirth { get; set; }
         public int Position { get; set; }
         public DateTime DateJoined { get; set; } = DateTime.Now;
-        public DateTime Updated { get; set; }
+        public DateTime Updated { get; set; } = new DateTime(1900, 01, 01);
+
+        public Employee()
+        {
+
+        }
     }
 }

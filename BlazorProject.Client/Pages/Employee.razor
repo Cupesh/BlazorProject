@@ -1,4 +1,4 @@
-﻿@page "/employeedata/{id}"
+﻿@page "/employee/{id}"
 
 @using BlazorProject.Client.HttpRepository
 @using BlazorProject.Client.Models
@@ -41,7 +41,7 @@ else
 
 @code
 {
-    BlazorProject.Client.Models.Employee employee;
+    Models.Employee employee;
 
     [Parameter]
     public string id { get; set; }

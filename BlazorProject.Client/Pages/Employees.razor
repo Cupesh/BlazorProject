@@ -8,10 +8,13 @@
 
 <h3>Employees</h3>
 
-@if (employees == null) {
+@if (employees == null)
+{
     <p><em>Loading...</em></p>
 }
-else{
+else
+{
+    <button class="btn btn-primary" @onclick="AddEmployee">Add Employee</button>
     <table>
         <thead>
             <tr>
@@ -23,21 +26,32 @@ else{
         <tbody>
             @foreach (var employee in employees)
             {
-            <tr>
-                <td>@employee.Id</td>
-                <td>@employee.FirstName</td>
-                <td>@employee.LastName</td>
-                <td><button class="btn btn-primary" @onclick="() => ViewEdit(employee.Id)">View/Edit</button></td>
-            </tr>
+                <tr>
+                    <td>@employee.Id</td>
+                    <td>@employee.FirstName</td>
+                    <td>@employee.LastName</td>
+                    <td><button class="btn btn-primary" @onclick="() => ViewEdit(employee.Id)">View/Edit</button></td>
+                    <td><button class="del btn btn-primary" @onclick="() => DeleteEmployee(employee.Id)">X</button></td>
+                </tr>
             }
         </tbody>
     </table>
+    <style>
+        .del {
+            color: black;
+            background-color: red;
+        }
+
+            .del:hover {
+                background-color: darkred;
+            }
+    </style>
 }
 
 @code
 {
-    List<BlazorProject.Client.Models.Employee> employees;
-    BlazorProject.Client.Models.Employee employee;
+    List<Models.Employee> employees;
+    Models.Employee employee;
 
     protected override async Task OnInitializedAsync()
     {
@@ -48,6 +62,17 @@ else{
 
     private void ViewEdit(int id)
     {
-        NavManager.NavigateTo("/employeedata/" + id);
+        NavManager.NavigateTo("/employee/" + id);
+    }
+
+    private async Task DeleteEmployee(int id)
+    {
+        await EmployeesHttpRepo.DeleteOne(id);
+        await OnInitializedAsync();
+    }
+
+    private void AddEmployee()
+    {
+        NavManager.NavigateTo("/newemployee");
     }
 }

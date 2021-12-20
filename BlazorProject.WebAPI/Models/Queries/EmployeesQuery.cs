@@ -80,6 +80,14 @@ namespace BlazorProject.WebAPI.Models.Queries
             return new OkObjectResult(result);
         }
 
+        public async Task<int> RetrieveLastId()
+        {
+            using var cmd = Db.Connection.CreateCommand();
+            cmd.CommandText = @"SELECT * FROM employees WHERE id = (SELECT MAX(id) FROM employees)";
+            var result = await ReadAll(await cmd.ExecuteReaderAsync());
+            return result.Count > 0 ? result[0].Id : -1;
+        }
+
         public async Task<List<Employee>> ReadAll(DbDataReader reader)
         {
             var employees = new List<Employee>();
