@@ -44,6 +44,20 @@ namespace BlazorProject.WebAPI.Models.Queries
             return result.Count > 0 ? result[0] : null;
         }
 
+        public async Task<int> RetrieveId(string name)
+        {
+            using var cmd = Db.Connection.CreateCommand();
+            cmd.CommandText = @"SELECT * FROM positions WHERE name = @name";
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@name",
+                DbType = DbType.String,
+                Value = name
+            });
+            var result = await ReadAll(await cmd.ExecuteReaderAsync());
+            return result.Count > 0 ? result[0].Id : 0;
+        }
+
         public async Task<IActionResult> CreateOne(Position position)
         {
             using var cmd = Db.Connection.CreateCommand();

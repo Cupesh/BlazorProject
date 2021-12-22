@@ -14,6 +14,7 @@ namespace BlazorProject.WebAPI.Controllers.v1
         private AppDb Db { get; set; }
         private List<Position> _positions;
         private Position _position;
+        private int _id;
 
         public PositionsController(AppDb db)
         {
@@ -36,6 +37,15 @@ namespace BlazorProject.WebAPI.Controllers.v1
             var query = new PositionsQuery(Db);
             _position = await query.RetrieveOne(id);
             return Ok(_position);
+        }
+
+        [HttpGet("api/v1/positions/getid/{name}")]
+        public async Task<IActionResult> GetId(string name)
+        {
+            await Db.Connection.OpenAsync();
+            var query = new PositionsQuery(Db);
+            _id = await query.RetrieveId(name);
+            return Ok(_id);
         }
 
         [HttpPost("api/v1/positions/new")]

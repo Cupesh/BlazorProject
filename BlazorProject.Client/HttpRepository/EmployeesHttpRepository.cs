@@ -76,8 +76,8 @@ namespace BlazorProject.Client.HttpRepository
                 throw new ApplicationException(content);
             }
             var lastId = JsonSerializer.Deserialize<int>(content, _options);
-            int nextAvailableId = lastId + 1;
-            return nextAvailableId;
+            int nextavailableId = lastId + 1;
+            return nextavailableId;
         }
     }
 }
