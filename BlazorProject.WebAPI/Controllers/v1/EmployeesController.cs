@@ -53,18 +53,19 @@ namespace BlazorProject.WebAPI.Controllers.v1
         }
 
         [HttpPut("api/v1/employees/update")]
-        public async Task<IActionResult> Put([FromBody] Employee employee)
+        public async Task<IActionResult> Put([FromBody] string employee)
         {
+            _employee = JsonSerializer.Deserialize<Employee>(employee);
             await Db.Connection.OpenAsync();
             var query = new EmployeesQuery(Db);
-            var result = await query.RetrieveOne(employee.Id);
+            var result = await query.RetrieveOne(_employee.Id);
 
-            result.Id = employee.Id;
-            result.FirstName = employee.FirstName;
-            result.LastName = employee.LastName;
-            result.DateOfBirth = employee.DateOfBirth;
-            result.Position = employee.Position;
-            result.DateJoined = employee.DateJoined;
+            result.Id = _employee.Id;
+            result.FirstName = _employee.FirstName;
+            result.LastName = _employee.LastName;
+            result.DateOfBirth = _employee.DateOfBirth;
+            result.Position = _employee.Position;
+            result.DateJoined = _employee.DateJoined;
 
             await query.UpdateOne(result);
             return Ok(result);

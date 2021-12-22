@@ -59,7 +59,7 @@ namespace BlazorProject.WebAPI.Models.Queries
         {
             using var cmd = Db.Connection.CreateCommand();
             cmd.CommandText = @"UPDATE employees SET first_name = @first_name, last_name = @last_name, 
-                                date_of_birth = @last_name, position = @position, date_joined = @date_joined WHERE id = @id";
+                                date_of_birth = @date_of_birth, position = @position, date_joined = @date_joined WHERE id = @id";
             employee.BindParams(cmd);
             var result = await cmd.ExecuteNonQueryAsync();
 

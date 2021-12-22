@@ -10,7 +10,7 @@ namespace BlazorProject.Client.Models
         public int Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public DateTime DateOfBirth { get; set; }
+        public DateTime DateOfBirth { get; set; } = new DateTime(1900, 01, 01);
         public int Position { get; set; }
         public DateTime DateJoined { get; set; } = DateTime.Now;
         public DateTime Updated { get; set; } = new DateTime(1900, 01, 01);

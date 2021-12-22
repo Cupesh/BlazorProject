@@ -26,5 +26,6 @@ namespace BlazorProject.Client.Models
 
         [Required]
         public DateTime DateJoined { get; set; } = DateTime.Now;
+        public DateTime Updated { get; set; }
     }
 }

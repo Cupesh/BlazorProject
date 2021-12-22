@@ -4,8 +4,8 @@
 @using BlazorProject.Client.Models
 @inject HttpClient Http
 @inject IEmployeesHttpRepository EmployeesHttpRepo
-
-<h3>Employee</h3>
+@inject IPositionsHttpRepository PositionsHttpRepo
+@inject NavigationManager NavManager
 
 @if (employee == null)
 {
@@ -13,42 +13,67 @@
 }
 else
 {
-    <table>
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Date of birth</th>
-                <th>Position</th>
-                <th>Joined</th>
-                <th>Last updated</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>@employee.Id</td>
-                <td>@employee.FirstName</td>
-                <td>@employee.LastName</td>
-                <td>@employee.DateOfBirth.ToString("dd/MM/yyyy")</td>
-                <td>@employee.Position</td>
-                <td>@employee.DateJoined.ToString("dd/MM/yyyy")</td>
-                <td>@employee.Updated.ToString("dd/MM/yyyy HH:mm:ss")</td>
-            </tr>
-        </tbody>
-    </table>
+    <h3>@employee.FirstName @employee.LastName</h3>
+    <EditForm Model="@employee" OnValidSubmit="@Submit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <dl>
+            <dt>Id Number</dt>
+            <dd><InputNumber @bind-Value="employee.Id" disabled="true" /></dd>
+
+            <dt>First Name</dt>
+            <dd><InputText @bind-Value="employee.FirstName" /></dd>
+
+            <dt>Surname</dt>
+            <dd><InputText @bind-Value="employee.LastName" /></dd>
+
+            <dt>Date Of Birth</dt>
+            <dd><InputDate @bind-Value="employee.DateOfBirth" /></dd>
+
+            <dt>Job Title</dt>
+            <dd>
+                <InputSelect @bind-Value="employee.Position">
+
+                    @foreach (var position in positions)
+                        {
+                        <option value="@position.Id">@position.Name </option>
+                        }
+                </InputSelect>
+            </dd>
+
+            <dt>Join Date</dt>
+            <dd><InputDate @bind-Value="employee.DateJoined" /></dd>
+
+            <dt>Last Updated</dt>
+            <dt>@employee.Updated.ToString()</dt>
+        </dl>
+        <button type="submit">Update</button>
+    </EditForm>
 }
 
 @code
 {
-    Models.Employee employee;
+    private Models.Employee employee;
+    private Models.Employee updatedEmployee;
+    private List<Position> positions;
+    private EmployeeFormModel employeeFormModel = new();
 
     [Parameter]
     public string id { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        var positionsQuery = await PositionsHttpRepo.GetAll();
+        positions = positionsQuery.ToList();
+
         int anId = Int32.Parse(id);
         employee = await EmployeesHttpRepo.GetOne(anId);
+    }
+
+    private async void Submit()
+    {
+        await EmployeesHttpRepo.PutOne(employee);
+
+        NavManager.NavigateTo("/employees");
     }
 }

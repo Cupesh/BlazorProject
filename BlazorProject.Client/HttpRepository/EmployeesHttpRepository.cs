@@ -56,6 +56,18 @@ namespace BlazorProject.Client.HttpRepository
             return;
         }
 
+        public async Task PutOne(Employee employee)
+        {
+            var json = JsonSerializer.Serialize(employee);
+            var result = await _client.PutAsJsonAsync("v1/employees/update", json);
+            var response = await result.Content.ReadAsStringAsync();
+            if (!result.IsSuccessStatusCode)
+            {
+                throw new ApplicationException(response);
+            }
+            return;
+        }
+
         public async Task DeleteOne(int id)
         {
             var result = await _client.DeleteAsync("v1/employees/delete/" + id);
