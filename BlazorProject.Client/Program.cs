@@ -21,6 +21,7 @@ namespace BlazorProject.Client
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:44377/api/") });
             builder.Services.AddScoped<IEmployeesHttpRepository, EmployeesHttpRepository>();
             builder.Services.AddScoped<IPositionsHttpRepository, PositionsHttpRepository>();
+            builder.Services.AddScoped<IClientsHttpRepository, ClientsHttpRepository>();
 
             //builder.Services.AddOidcAuthentication(options =>
             //{

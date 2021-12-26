@@ -1,0 +1,76 @@
+﻿@page "/clients"
+
+@using BlazorProject.Client.HttpRepository
+@using BlazorProject.Client.Models
+@inject HttpClient Http
+@inject IClientsHttpRepository ClientsHttpRepo
+@inject NavigationManager NavManager
+
+<h3>Clients</h3>
+
+@if (clients == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <button class="btn btn-primary" @onclick="AddClient">Add Client</button>
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var client in clients)
+            {
+                <tr>
+                    <td>@client.Id</td>
+                    <td>@client.Name</td>
+                    <td><button class="btn btn-primary" @onclick="() => ViewEdit(client.Id)">View/Edit</button></td>
+                    <td><button class="del btn btn-primary" @onclick="() => DeleteClient(client.Id)">X</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <style>
+        .del {
+            color: black;
+            background-color: red;
+        }
+
+            .del:hover {
+                background-color: darkred;
+            }
+    </style>
+}
+
+@code
+{
+    List<Models.Client> clients;
+    Models.Client client;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await ClientsHttpRepo.GetAll();
+
+        clients = result.ToList();
+    }
+
+    private void ViewEdit(int id)
+    {
+        NavManager.NavigateTo("/client/" + id);
+    }
+
+    private async Task DeleteClient(int id)
+    {
+        await ClientsHttpRepo.DeleteOne(id);
+        await OnInitializedAsync();
+    }
+
+    private void AddClient()
+    {
+        NavManager.NavigateTo("/newclient");
+    }
+}

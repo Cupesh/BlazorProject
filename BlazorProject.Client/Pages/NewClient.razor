@@ -1,0 +1,60 @@
+﻿@page "/newclient"
+
+@using BlazorProject.Client.HttpRepository
+@using BlazorProject.Client.Models
+@inject HttpClient Http
+@inject IClientsHttpRepository ClientsHttpRepo
+@inject NavigationManager NavManager
+
+<h3>Create A New Client</h3>
+
+@if (availableId == 0)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <EditForm Model="@newClient" OnValidSubmit="@Submit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <dl>
+            <dt>Id Number</dt>
+            <dd><InputNumber @bind-Value="availableId" disabled="true" /></dd>
+
+            <dt>Name</dt>
+            <dd><InputText @bind-Value="newClient.Name" /></dd>
+
+            <dt>Address</dt>
+            <dd><InputText @bind-Value="newClient.Address" /></dd>
+
+            <dt>Pay Rate 1</dt>
+            <dd><InputNumber @bind-Value="newClient.PayRate1" /></dd>
+
+            <dt>Pay Rate 2</dt>
+            <dd><InputNumber @bind-Value="newClient.PayRate2" /></dd>
+        </dl>
+        <button type="submit">Add a new client</button>
+    </EditForm>
+}
+
+@code
+{
+    private int availableId = 0;
+    private Models.Client newClient = new Models.Client();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        availableId = await ClientsHttpRepo.GetLastId();
+    }
+
+    private async void Submit()
+    {
+        newClient.Id = availableId;
+
+        await ClientsHttpRepo.PostOne(newClient);
+
+        NavManager.NavigateTo("/clients");
+    }
+}
+

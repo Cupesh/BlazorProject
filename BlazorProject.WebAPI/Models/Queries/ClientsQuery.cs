@@ -80,6 +80,14 @@ namespace BlazorProject.WebAPI.Models.Queries
             return new OkObjectResult(result);
         }
 
+        public async Task<int> RetrieveLastId()
+        {
+            using var cmd = Db.Connection.CreateCommand();
+            cmd.CommandText = @"SELECT * FROM clients WHERE id = (SELECT MAX(id) FROM clients)";
+            var result = await ReadAll(await cmd.ExecuteReaderAsync());
+            return result.Count > 0 ? result[0].Id : -1;
+        }
+
         public async Task<List<Client>> ReadAll(DbDataReader reader)
         {
             var clients = new List<Client>();
@@ -93,8 +101,8 @@ namespace BlazorProject.WebAPI.Models.Queries
                         Id = reader.GetInt32(0),
                         Name = reader.GetString(1),
                         Address = reader.GetString(2),
-                        PayRate1 = reader.GetInt32(3),
-                        PayRate2 = reader.GetInt32(4),
+                        PayRate1 = reader.GetDecimal(3),
+                        PayRate2 = reader.GetDecimal(4),
                         Updated = reader.GetDateTime(5)
                     };
                     clients.Add(client);

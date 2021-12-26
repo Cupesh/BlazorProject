@@ -13,8 +13,8 @@ namespace BlazorProject.WebAPI.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public string Address { get; set; }
-        public int PayRate1 { get; set; }
-        public int PayRate2 { get; set; }
+        public decimal PayRate1 { get; set; }
+        public decimal PayRate2 { get; set; }
         public DateTime Updated {get;set;}
         internal AppDb Db { get; set; }
 
@@ -52,13 +52,13 @@ namespace BlazorProject.WebAPI.Models
             cmd.Parameters.Add(new MySqlParameter
             {
                 ParameterName = "@pay_rate_1",
-                DbType = DbType.Int32,
+                DbType = DbType.Decimal,
                 Value = PayRate1
             });
             cmd.Parameters.Add(new MySqlParameter
             {
                 ParameterName = "@pay_rate_2",
-                DbType = DbType.Int32,
+                DbType = DbType.Decimal,
                 Value = PayRate2
             });
             cmd.Parameters.Add(new MySqlParameter

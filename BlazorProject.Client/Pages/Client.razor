@@ -1,0 +1,62 @@
+﻿@page "/client/{id}"
+
+@using BlazorProject.Client.HttpRepository
+@using BlazorProject.Client.Models
+@inject HttpClient Http
+@inject IClientsHttpRepository ClientHttRepo
+@inject NavigationManager NavManager
+
+@if (client == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <h3>@client.Name</h3>
+    <EditForm Model="@client" OnValidSubmit="@Submit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <dl>
+            <dt>Id Number</dt>
+            <dd><InputNumber @bind-Value="client.Id" disabled="true" /></dd>
+
+            <dt>Name</dt>
+            <dd><InputText @bind-Value="client.Name" /></dd>
+
+            <dt>Address</dt>
+            <dd><InputText @bind-Value="client.Address" /></dd>
+
+            <dt>Pay Rate 1</dt>
+            <dd><InputNumber @bind-Value="client.PayRate1" /></dd>
+
+            <dt>Pay Rate 2</dt>
+            <dd><InputNumber @bind-Value="client.PayRate2" /></dd>
+
+            <dt>Last Updated</dt>
+            <dt>@client.Updated.ToString()</dt>
+        </dl>
+        <button type="submit">Update</button>
+    </EditForm>
+}
+
+@code
+{
+    private Models.Client client;
+
+    [Parameter]
+    public string id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        int anId = Int32.Parse(id);
+        client = await ClientHttRepo.GetOne(anId);
+    }
+
+    private async void Submit()
+    {
+        await ClientHttRepo.PutOne(client);
+
+        NavManager.NavigateTo("/clients");
+    }
+}

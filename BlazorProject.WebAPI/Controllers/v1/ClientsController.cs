@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace BlazorProject.WebAPI.Controllers.v1
@@ -39,32 +40,34 @@ namespace BlazorProject.WebAPI.Controllers.v1
         }
 
         [HttpPost("api/v1/clients/new")]
-        public async Task<IActionResult> Post([FromBody] Client client)
+        public async Task<IActionResult> Post([FromBody] string client)
         {
+            _client = JsonSerializer.Deserialize<Client>(client);
             await Db.Connection.OpenAsync();
             var query = new ClientsQuery(Db);
-            var result = await query.CreateOne(client);
+            var result = await query.CreateOne(_client);
             return Ok(result);
         }
 
         [HttpPut("api/v1/clients/update")]
-        public async Task<IActionResult> Put([FromBody] Client client)
+        public async Task<IActionResult> Put([FromBody] string client)
         {
+            _client = JsonSerializer.Deserialize<Client>(client);
             await Db.Connection.OpenAsync();
             var query = new ClientsQuery(Db);
-            var result = await query.RetrieveOne(client.Id);
+            var result = await query.RetrieveOne(_client.Id);
 
-            result.Id = client.Id;
-            result.Name = client.Name;
-            result.Address = client.Address;
-            result.PayRate1 = client.PayRate1;
-            result.PayRate2 = client.PayRate2;
+            result.Id = _client.Id;
+            result.Name = _client.Name;
+            result.Address = _client.Address;
+            result.PayRate1 = _client.PayRate1;
+            result.PayRate2 = _client.PayRate2;
 
             await query.UpdateOne(result);
             return Ok(result);
         }
 
-        [HttpDelete("api/v1/clients/delete")]
+        [HttpDelete("api/v1/clients/delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             await Db.Connection.OpenAsync();
@@ -74,7 +77,15 @@ namespace BlazorProject.WebAPI.Controllers.v1
                 return new NotFoundResult();
             var result = await query.DeleteOne(id);
             return Ok(result);
+        }
 
+        [HttpGet("api/v1/clients/lastid")]
+        public async Task<IActionResult> GetLastId()
+        {
+            await Db.Connection.OpenAsync();
+            var query = new ClientsQuery(Db);
+            var result = await query.RetrieveLastId();
+            return Ok(result);
         }
     }
 }
