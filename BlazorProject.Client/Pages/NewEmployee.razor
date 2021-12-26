@@ -15,7 +15,7 @@
 }
 else
 {
-    <EditForm Model="@employeeFormModel" OnValidSubmit="@Submit">
+    <EditForm Model="@newEmployee" OnValidSubmit="@Submit">
         <DataAnnotationsValidator />
         <ValidationSummary />
         <dl>
@@ -23,27 +23,27 @@ else
             <dd><InputNumber @bind-Value="availableId" disabled="true" /></dd>
 
             <dt>First Name</dt>
-            <dd><InputText @bind-Value="employeeFormModel.FirstName" /></dd>
+            <dd><InputText @bind-Value="newEmployee.FirstName" /></dd>
 
             <dt>Surname</dt>
-            <dd><InputText @bind-Value="employeeFormModel.LastName" /></dd>
+            <dd><InputText @bind-Value="newEmployee.LastName" /></dd>
 
             <dt>Date Of Birth</dt>
-            <dd><InputDate @bind-Value="employeeFormModel.DateOfBirth" /></dd>
+            <dd><InputDate @bind-Value="newEmployee.DateOfBirth" /></dd>
 
             <dt>Job Title</dt>
             <dd>
-                <InputSelect @bind-Value="employeeFormModel.Position">
-                    <option></option>
+                <InputSelect @bind-Value="newEmployee.Position">
+
                     @foreach (var position in positions)
                     {
-                        <option>@position.Name</option>
+                        <option value="@position.Id">@position.Name</option>
                     }
                 </InputSelect>
             </dd>
 
             <dt>Join Date</dt>
-            <dd><InputDate @bind-Value="employeeFormModel.DateJoined" /></dd>
+            <dd><InputDate @bind-Value="newEmployee.DateJoined" /></dd>
         </dl>
         <button type="submit">Add new employee</button>
     </EditForm>
@@ -53,7 +53,6 @@ else
 {
     private List<Position> positions;
     private int availableId = 0;
-    private EmployeeFormModel employeeFormModel = new();
     private Models.Employee newEmployee = new Models.Employee();
 
 
@@ -68,12 +67,6 @@ else
     private async void Submit()
     {
         newEmployee.Id = availableId;
-
-        newEmployee.FirstName = employeeFormModel.FirstName;
-        newEmployee.LastName = employeeFormModel.LastName;
-        newEmployee.DateOfBirth = employeeFormModel.DateOfBirth;
-        newEmployee.Position = await PositionsHttpRepo.GetIdFromName(employeeFormModel.Position);
-        newEmployee.DateJoined = employeeFormModel.DateJoined;
 
         await EmployeesHttpRepo.PostOne(newEmployee);
 
