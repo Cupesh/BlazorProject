@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace BlazorProject.WebAPI.Models
@@ -39,34 +40,36 @@ namespace BlazorProject.WebAPI.Models
         }
 
         [HttpPost("api/v1/contracts/new")]
-        public async Task<IActionResult> Post([FromBody] Contract contract)
+        public async Task<IActionResult> Post([FromBody] string contract)
         {
+            _contract = JsonSerializer.Deserialize<Contract>(contract);
             await Db.Connection.OpenAsync();
             var query = new ContractsQuery(Db);
-            var result = await query.CreateOne(contract);
+            var result = await query.CreateOne(_contract);
             return Ok(result);
         }
 
         [HttpPut("api/v1/contracts/update")]
-        public async Task<IActionResult> Put([FromBody] Contract contract)
+        public async Task<IActionResult> Put([FromBody] string contract)
         {
+            _contract = JsonSerializer.Deserialize<Contract>(contract);
             await Db.Connection.OpenAsync();
             var query = new ContractsQuery(Db);
-            var result = await query.RetrieveOne(contract.Id);
+            var result = await query.RetrieveOne(_contract.Id);
 
-            result.Id = contract.Id;
-            result.Description = contract.Description;
-            result.Contractor = contract.Contractor;
-            result.Worker = contract.Worker;
-            result.HoursWorked = contract.HoursWorked;
-            result.DateRequested = contract.DateRequested;
-            result.Completed = contract.Completed;
+            result.Id = _contract.Id;
+            result.Description = _contract.Description;
+            result.Contractor = _contract.Contractor;
+            result.Worker = _contract.Worker;
+            result.HoursWorked = _contract.HoursWorked;
+            result.DateRequested = _contract.DateRequested;
+            result.Completed = _contract.Completed;
 
             await query.UpdateOne(result);
             return Ok(result);
         }
 
-        [HttpDelete("api/v1/contracts/delete")]
+        [HttpDelete("api/v1/contracts/delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             await Db.Connection.OpenAsync();
@@ -76,7 +79,15 @@ namespace BlazorProject.WebAPI.Models
                 return new NotFoundResult();
             var result = await query.DeleteOne(id);
             return Ok(result);
+        }
 
+        [HttpGet("api/v1/contracts/lastid")]
+        public async Task<IActionResult> GetLastId()
+        {
+            await Db.Connection.OpenAsync();
+            var query = new EmployeesQuery(Db);
+            var result = await query.RetrieveLastId();
+            return Ok(result);
         }
     }
 }

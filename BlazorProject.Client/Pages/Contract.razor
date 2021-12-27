@@ -1,0 +1,66 @@
+﻿@page "/contract/{id}"
+
+@using BlazorProject.Client.HttpRepository
+@using BlazorProject.Client.Models
+@inject HttpClient Http
+@inject IContractsHttpRepository ContractsHttpRepo
+@inject NavigationManager NavManager
+
+@if (contract == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <EditForm Model="@contract" OnValidSubmit="@Submit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <dl>
+            <dt>Id Number</dt>
+            <dd><InputNumber @bind-Value="contract.Id" disabled="true" /></dd>
+
+            <dt>Requested On Date</dt>
+            <dd><InputDate @bind-Value="contract.DateRequested" /></dd>
+
+            <dt>Description</dt>
+            <dd><InputText @bind-Value="contract.Description" /></dd>
+
+            <dt>Contracted By</dt>
+            <dd><InputNumber @bind-Value="contract.Contractor" /></dd>
+
+            <dt>Assigned Worker</dt>
+            <dd><InputNumber @bind-Value="contract.Worker" /></dd>
+
+            <dt>Hours Worked</dt>
+            <dd><InputNumber @bind-Value="contract.HoursWorked" /></dd>
+
+            <dt>Completed?</dt>
+            <dd><InputCheckbox @bind-Value="contract.Completed"/></dd>
+
+            <dt>Last Updated</dt>
+            <dt>@contract.Updated.ToString()</dt>
+        </dl>
+        <button type="submit">Update</button>
+    </EditForm>
+}
+
+@code
+{
+    private Models.Contract contract;
+
+    [Parameter]
+    public string id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        int anId = Int32.Parse(id);
+        contract = await ContractsHttpRepo.GetOne(anId);
+    }
+
+    private async void Submit()
+    {
+        await ContractsHttpRepo.PutOne(contract);
+
+        NavManager.NavigateTo("/contracts");
+    }
+}

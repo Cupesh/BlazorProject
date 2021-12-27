@@ -1,0 +1,65 @@
+﻿@page "/newcontract"
+
+@using BlazorProject.Client.HttpRepository
+@using BlazorProject.Client.Models
+@inject HttpClient Http
+@inject IContractsHttpRepository ContractsHttpRepo
+@inject NavigationManager NavManager
+
+<h3>Add a new contract</h3>
+
+@if (availableId == 0)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <EditForm Model="@newContract" OnValidSubmit="@Submit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <dl>
+            <dt>Id Number</dt>
+            <dd><InputNumber @bind-Value="availableId" disabled="true" /></dd>
+
+            <dt>Requested On Date</dt>
+            <dd><InputDate @bind-Value="newContract.DateRequested" /></dd>
+
+            <dt>Description</dt>
+            <dd><InputText @bind-Value="newContract.Description" /></dd>
+
+            <dt>Contracted By</dt>
+            <dd><InputNumber @bind-Value="newContract.Contractor" /></dd>
+
+            <dt>Assigned Worker</dt>
+            <dd><InputNumber @bind-Value="newContract.Worker" /></dd>
+
+            <dt>Hours Worked</dt>
+            <dd><InputNumber @bind-Value="newContract.HoursWorked" /></dd>
+
+            <dt>Completed?</dt>
+            <dd><InputCheckbox @bind-Value="newContract.Completed" /></dd>
+        </dl>
+        <button type="submit">Add new contract</button>
+    </EditForm>
+}
+
+@code
+{
+    private int availableId = 0;
+    private Models.Contract newContract = new Models.Contract();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        availableId = await ContractsHttpRepo.GetLastId();
+    }
+
+    private async void Submit()
+    {
+        newContract.Id = availableId;
+
+        await ContractsHttpRepo.PostOne(newContract);
+
+        NavManager.NavigateTo("/contracts");
+    }
+}

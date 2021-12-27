@@ -26,6 +26,10 @@ else
         <tbody>
             @foreach (var employee in employees)
             {
+                if (employee.Id == 0)
+                {
+                    continue;
+                }
                 <tr>
                     <td>@employee.Id</td>
                     <td>@employee.FirstName</td>
@@ -51,7 +55,6 @@ else
 @code
 {
     List<Models.Employee> employees;
-    Models.Employee employee;
 
     protected override async Task OnInitializedAsync()
     {
