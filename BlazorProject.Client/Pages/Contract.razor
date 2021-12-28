@@ -4,6 +4,8 @@
 @using BlazorProject.Client.Models
 @inject HttpClient Http
 @inject IContractsHttpRepository ContractsHttpRepo
+@inject IClientsHttpRepository ClientsHttpRepo
+@inject IEmployeesHttpRepository EmployeesHttpRepo
 @inject NavigationManager NavManager
 
 @if (contract == null)
@@ -23,13 +25,29 @@ else
             <dd><InputDate @bind-Value="contract.DateRequested" /></dd>
 
             <dt>Description</dt>
-            <dd><InputText @bind-Value="contract.Description" /></dd>
+            <dd><InputTextArea @bind-Value="contract.Description" /></dd>
 
             <dt>Contracted By</dt>
-            <dd><InputNumber @bind-Value="contract.Contractor" /></dd>
+            <dd>
+                <InputSelect @bind-Value="contract.Contractor">
+
+                    @foreach (var client in clients)
+                        {
+                        <option value="@client.Id">@client.Name </option>
+                        }
+                </InputSelect>
+            </dd>
 
             <dt>Assigned Worker</dt>
-            <dd><InputNumber @bind-Value="contract.Worker" /></dd>
+            <dd>
+                <InputSelect @bind-Value="contract.Worker">
+
+                    @foreach (var employee in employees)
+                        {
+                        <option value="@employee.Id">@employee.FirstName @employee.LastName  </option>
+                        }
+                </InputSelect>
+            </dd>
 
             <dt>Hours Worked</dt>
             <dd><InputNumber @bind-Value="contract.HoursWorked" /></dd>
@@ -47,12 +65,20 @@ else
 @code
 {
     private Models.Contract contract;
+    private List<Models.Client> clients;
+    private List<Models.Employee> employees;
 
     [Parameter]
     public string id { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        var clientsQueryResult = await ClientsHttpRepo.GetAll();
+        clients = clientsQueryResult.ToList();
+
+        var employeesQueryResult = await EmployeesHttpRepo.GetAll();
+        employees = employeesQueryResult.ToList();
+
         int anId = Int32.Parse(id);
         contract = await ContractsHttpRepo.GetOne(anId);
     }

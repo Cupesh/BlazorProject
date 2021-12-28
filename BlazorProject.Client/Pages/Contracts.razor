@@ -4,6 +4,7 @@
 @using BlazorProject.Client.Models
 @inject HttpClient Http
 @inject IContractsHttpRepository ContractsHttpRepo
+@inject IClientsHttpRepository ClientsHttRepo
 @inject NavigationManager NavManager
 
 <h3>Contracts</h3>
@@ -30,7 +31,13 @@ else
                 <tr>
                     <td>@contract.Id</td>
                     <td>@contract.DateRequested.ToString("dd-MM-yyyy")</td>
-                    <td>@contract.Contractor</td>
+                    @foreach (var client in clients)
+                    {
+                        @if (client.Id == contract.Contractor) 
+                        {
+                            <td>@client.Name</td>
+                        }
+                    }
                     <td>@contract.Completed</td>
                     <td><button class="btn btn-primary" @onclick="() => ViewEdit(contract.Id)">View/Edit</button></td>
                     <td><button class="del btn btn-primary" @onclick="() => DeleteContract(contract.Id)">X</button></td>
@@ -52,12 +59,16 @@ else
 
 @code {
     private List<Models.Contract> contracts;
+    private List<Models.Client> clients;
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await ContractsHttpRepo.GetAll();
+        var clientsQueryResult = await ClientsHttRepo.GetAll();
+        clients = clientsQueryResult.ToList();
 
-        contracts = result.ToList();
+        var contractsQueryResult = await ContractsHttpRepo.GetAll();
+
+        contracts = contractsQueryResult.ToList();
     }
 
     private void ViewEdit(int id)

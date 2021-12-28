@@ -61,8 +61,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        var positionsQuery = await PositionsHttpRepo.GetAll();
-        positions = positionsQuery.ToList();
+        var positionsQueryResult = await PositionsHttpRepo.GetAll();
+        positions = positionsQueryResult.ToList();
 
         int anId = Int32.Parse(id);
         employee = await EmployeesHttpRepo.GetOne(anId);
