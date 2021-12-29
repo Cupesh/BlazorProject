@@ -4,6 +4,8 @@
 @using BlazorProject.Client.Models
 @inject HttpClient Http
 @inject IContractsHttpRepository ContractsHttpRepo
+@inject IEmployeesHttpRepository EmployeesHttRepo
+@inject IClientsHttpRepository ClientsHttpRepo
 @inject NavigationManager NavManager
 
 <h3>Add a new contract</h3>
@@ -25,13 +27,29 @@ else
             <dd><InputDate @bind-Value="newContract.DateRequested" /></dd>
 
             <dt>Description</dt>
-            <dd><InputText @bind-Value="newContract.Description" /></dd>
+            <dd><InputTextArea @bind-Value="newContract.Description" /></dd>
 
             <dt>Contracted By</dt>
-            <dd><InputNumber @bind-Value="newContract.Contractor" /></dd>
+            <dd>
+                <InputSelect @bind-Value="newContract.Contractor">
+
+                    @foreach (var client in clients)
+                        {
+                        <option value="@client.Id">@client.Name </option>
+                        }
+                </InputSelect>
+            </dd>
 
             <dt>Assigned Worker</dt>
-            <dd><InputNumber @bind-Value="newContract.Worker" /></dd>
+            <dd>
+                <InputSelect @bind-Value="newContract.Worker">
+
+                    @foreach (var employee in employees)
+                        {
+                        <option value="@employee.Id">@employee.FirstName @employee.LastName  </option>
+                        }
+                </InputSelect>
+            </dd>
 
             <dt>Hours Worked</dt>
             <dd><InputNumber @bind-Value="newContract.HoursWorked" /></dd>
@@ -47,10 +65,18 @@ else
 {
     private int availableId = 0;
     private Models.Contract newContract = new Models.Contract();
+    private List<Models.Employee> employees;
+    private List<Models.Client> clients;
 
 
     protected override async Task OnInitializedAsync()
     {
+        var employeesQueryResult = await EmployeesHttRepo.GetAll();
+        employees = employeesQueryResult.ToList();
+
+        var clientsQueryResult = await ClientsHttpRepo.GetAll();
+        clients = clientsQueryResult.ToList();
+
         availableId = await ContractsHttpRepo.GetLastId();
     }
 
