@@ -1,0 +1,81 @@
+﻿@page "/reports/new"
+
+@using System
+@using System.Globalization
+
+@inject NavigationManager NavManager
+
+<h3>Create a new report</h3>
+
+@if (isCreating)
+{
+    <button class="btn btn-primary" @onclick="() => isCreating = false">Cancel</button>
+
+    @switch (selectedReportType)
+    {
+        case Models.ReportType.Weekly:
+            <EditForm Model="@weeklyReportForm" OnValidSubmit="@GenerateWeeklyReport">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <dl>
+                    <dt>Enter a year</dt>
+                    <dd><InputNumber @bind-Value="weeklyReportForm.Year" /></dd>
+                    <dt>Enter a week</dt>
+                    <dd><InputNumber @bind-Value="weeklyReportForm.WeekNumber" /></dd>
+                </dl>
+                <button type="submit">Generate report</button>
+            </EditForm>
+            break;
+        case Models.ReportType.Monthly:
+            <p>!</p>
+            break;
+        case Models.ReportType.Quarterly:
+            <p>!!</p>
+            break;
+        case Models.ReportType.Yearly:
+            <p>!!!</p>
+            break;
+    }
+}
+else
+{
+    <div>
+        <select @bind="selectedReportType">
+            @foreach (Models.ReportType reportType in reportTypes)
+            {
+                <option value="@reportType">@reportType</option>
+            }
+        </select>
+
+        <button disabled="@(selectedReportType == 0 ? true : false)" class="btn btn-primary" @onclick="() => isCreating = true">Create a new report</button>
+    </div>
+}
+
+@code {
+    private bool isCreating = false;
+
+    private Array reportTypes = Enum.GetValues(typeof(Models.ReportType));
+    private Models.ReportType selectedReportType;
+
+    private Models.WeeklyReportForm weeklyReportForm = new Models.WeeklyReportForm();
+    private string Test { get; set; }
+
+
+    private void GenerateWeeklyReport()
+    {
+        //DateTime date = FirstDateOfWeekISO8601(weeklyReportForm.Year, weeklyReportForm.WeekNumber);
+
+        NavManager.NavigateTo("/weeklyreport/" + weeklyReportForm.Year + "/" + weeklyReportForm.WeekNumber);
+    }
+
+    private int GetWeekNo(DateTime date)
+    {
+        CultureInfo currentCulture = CultureInfo.CurrentCulture;
+        int weekNo = currentCulture.Calendar.GetWeekOfYear(
+                        date,
+                        currentCulture.DateTimeFormat.CalendarWeekRule,
+                        currentCulture.DateTimeFormat.FirstDayOfWeek);
+
+        return weekNo;
+    }
+}

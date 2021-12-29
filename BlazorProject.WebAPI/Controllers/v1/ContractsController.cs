@@ -85,7 +85,7 @@ namespace BlazorProject.WebAPI.Models
         public async Task<IActionResult> GetLastId()
         {
             await Db.Connection.OpenAsync();
-            var query = new EmployeesQuery(Db);
+            var query = new ContractsQuery(Db);
             var result = await query.RetrieveLastId();
             return Ok(result);
         }

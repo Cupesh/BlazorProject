@@ -90,9 +90,11 @@ using BlazorProject.Client.Shared;
         }
         #pragma warning restore 1998
 #nullable restore
-#line 33 "C:\Users\cupak\source\repos\BlazorProject\BlazorProject.Client\Shared\NavMenu.razor"
+#line 48 "C:\Users\cupak\source\repos\BlazorProject\BlazorProject.Client\Shared\NavMenu.razor"
        
     private bool collapseNavMenu = true;
+
+    private bool toggleSubNavMenu;
 
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 

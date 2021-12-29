@@ -27,11 +27,28 @@
                 <span class="oi oi-list-rich" aria-hidden="true"></span> Contracts
             </NavLink>
         </li>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" @onclick="()=>toggleSubNavMenu = !toggleSubNavMenu">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> Reports
+            </NavLink>
+            @if (toggleSubNavMenu)
+            {
+                <NavLink class="expand-menu" href="reports/new">
+                    <span>New Report</span>
+                </NavLink>
+
+                <NavLink class="" href="reports/archive">
+                    <span>Archive</span>
+                </NavLink>
+            }
+        </li>
     </ul>
 </div>
 
 @code {
     private bool collapseNavMenu = true;
+
+    private bool toggleSubNavMenu;
 
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
