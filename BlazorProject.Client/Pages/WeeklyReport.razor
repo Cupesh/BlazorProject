@@ -24,18 +24,94 @@ else
 
         <p>From @dates.First().ToString("d MMMM") To @dates.Last().ToString("d MMMM") </p>
 
-        <p>These clients gave contracts:</p>
+        <p>Generated total of £@paymentsPerContracts.Sum(x => x.Value).ToString()</p>
+        <p>Total hours for this period: @sumHoursByClient.Sum(x => x.Value).ToString()</p>
 
-        @foreach (var client in new HashSet<Models.Client>(clients))
-        {
-            <p>@client.Name</p>
-        }
+        <p>@filteredContracts.Count().ToString() contracts were completed for this period:</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date Requested</th>
+                    <th>Id</th>
+                    <th>Description</th>
+                    <th>Payment</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var contract in filteredContracts)
+                {
+                    <tr>
+                        <td>@contract.DateRequested.ToString("dd-MMMM")</td>
+                        <td>@contract.Id</td>
+                        <td>@contract.Description</td>
+                        @foreach (KeyValuePair<Models.Contract, decimal> entry in paymentsPerContracts)
+                        {
+                            if (entry.Key.Id == contract.Id)
+                            {
+                                <td>£@entry.Value.ToString()</td>
+                            }
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
 
-        <p>These employees worked:</p>
-        @foreach (var employee in employees)
-        {
-            <p>@employee.FirstName @employee.LastName</p>
-        }
+        <p>------------------------------------------------------</p>
+        <p>Breakdown per client: </p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Client</th>
+                    <th>Hours Contracted</th>
+                    <th>Paid</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (KeyValuePair<Models.Client, int> entry in sumHoursByClient)
+                {
+                    <tr>
+                        <td>@entry.Key.Name</td>
+                        <td>@entry.Value.ToString()</td>
+                        @foreach (KeyValuePair<Models.Client, decimal> anEntry in paymentsPerClients)
+                        {
+                            if (anEntry.Key.Id == entry.Key.Id)
+                            {
+                                <td>£@anEntry.Value.ToString()p</td>
+                            }
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <p>----------------------------------------------------------</p>
+        <p>Breakdown per employee:</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Total Hours</th>
+                    <th>Total monies generated</th>
+                </tr>
+            </thead>
+        </table>
+        <tbody>
+            @foreach (KeyValuePair<Models.Employee, int> entry in sumHoursByEmployee)
+            {
+                <tr>
+                    <td>@entry.Key.FirstName @entry.Key.LastName</td>
+                    <td>@entry.Value.ToString()</td>
+                    @foreach (KeyValuePair<Models.Employee, decimal> anEntry in paymentsPerEmployee)
+                    {
+                        if (anEntry.Key.Id == entry.Key.Id)
+                        {
+                            <td>£@anEntry.Value.ToString()p</td>
+                        }
+                    }
+                </tr> 
+            }
+        </tbody>
+
     }
 }
 
@@ -52,8 +128,15 @@ else
     private List<Models.Contract> allContracts = new List<Models.Contract>();
     private List<Models.Contract> filteredContracts = new List<Models.Contract>();
 
-    private List<Models.Client> clients = new List<Models.Client>();
-    private List<Models.Employee> employees = new List<Models.Employee>();
+    HashSet<Models.Client> filteredClients = new HashSet<Models.Client>();
+    HashSet<Models.Employee> filteredEmployees = new HashSet<Models.Employee>();
+
+    private Dictionary<Models.Client, int> sumHoursByClient = new Dictionary<Models.Client, int>();
+    private Dictionary<Models.Employee, int> sumHoursByEmployee = new Dictionary<Models.Employee, int>();
+
+    private Dictionary<Models.Contract, decimal> paymentsPerContracts = new Dictionary<Models.Contract, decimal>();
+    private Dictionary<Models.Client, decimal> paymentsPerClients = new Dictionary<Models.Client, decimal>();
+    private Dictionary<Models.Employee, decimal> paymentsPerEmployee = new Dictionary<Models.Employee, decimal>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -64,28 +147,129 @@ else
         GetContracts();
         if (filteredContracts.Count == 0)
         {
+            isWorking = false;
             return;
         }
         await GetClients();
         await GetEmployees();
+
+        await GenerateReport();
+
         isWorking = false;
+    }
+
+    private async Task GenerateReport()
+    {
+        foreach (var client in filteredClients)
+        {
+            int sum = GetSumHoursByClient(client.Id);
+            sumHoursByClient.Add(client, sum);
+        }
+
+        foreach (var employee in filteredEmployees)
+        {
+            int sum = GetSumHoursByEmployee(employee.Id);
+            sumHoursByEmployee.Add(employee, sum);
+        }
+
+        await GetPayments();
+
+        return;
+    }
+
+    private async Task GetPayments()
+    {
+        foreach (var client in filteredClients)
+        {
+            paymentsPerClients.Add(client, 0m);
+        }
+
+        foreach (var employee in filteredEmployees)
+        {
+            paymentsPerEmployee.Add(employee, 0m);
+        }
+
+        foreach (var contract in filteredContracts)
+        {
+            var employee = await EmployeeHttRepo.GetOne(contract.Worker);
+            var client = await ClientsHttpRepo.GetOne(contract.Contractor);
+
+            if (employee.Position == 1)
+            {
+                decimal payment = client.PayRate1 * contract.HoursWorked;
+                paymentsPerContracts.Add(contract, payment);
+
+                paymentsPerClients[client] += payment;
+                paymentsPerEmployee[employee] += payment;
+            }
+            else
+            {
+                decimal payment = client.PayRate2 * contract.HoursWorked;
+                paymentsPerContracts.Add(contract, payment);
+
+                paymentsPerClients[client] += payment;
+                paymentsPerEmployee[employee] += payment;
+            }
+        }
+    }
+
+    private int GetSumHoursByEmployee(int id)
+    {
+        int sum = 0;
+
+        foreach (var contract in filteredContracts)
+        {
+            if (contract.Worker == id)
+            {
+                sum += contract.HoursWorked;
+            }
+        }
+        return sum;
+    }
+
+    private int GetSumHoursByClient(int id)
+    {
+        int sum = 0;
+
+        foreach (var contract in filteredContracts)
+        {
+            if (contract.Contractor == id)
+            {
+                sum += contract.HoursWorked;
+            }
+        }
+        return sum;
     }
 
     private async Task GetEmployees()
     {
+        List<Models.Employee> employees = new List<Models.Employee>();
+
         foreach (var contract in filteredContracts)
         {
             var result = await EmployeeHttRepo.GetOne(contract.Worker);
             employees.Add(result);
         }
+
+        foreach (var employee in employees)
+        {
+            filteredEmployees.Add(employee);
+        }
     }
 
     private async Task GetClients()
     {
+        List<Models.Client> clients = new List<Models.Client>();
+
         foreach (var contract in filteredContracts)
         {
             var result = await ClientsHttpRepo.GetOne(contract.Contractor);
             clients.Add(result);
+        }
+
+        foreach (var client in clients)
+        {
+            filteredClients.Add(client);
         }
     }
 

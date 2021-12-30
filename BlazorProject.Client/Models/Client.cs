@@ -17,5 +17,17 @@ namespace BlazorProject.Client.Models
         public Client()
         {
         }
+
+        // overrides for HashSet methods to handle object uniqness in hashset
+        public override bool Equals(object obj)
+        {
+            Client c = obj as Client;
+            return c != null && c.Id == this.Id && c.Name == this.Name;
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Id.GetHashCode() ^ this.Name.GetHashCode();
+        }
     }
 }

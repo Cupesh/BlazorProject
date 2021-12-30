@@ -19,5 +19,17 @@ namespace BlazorProject.Client.Models
         public Contract()
         {
         }
+
+        // overrides for HashSet methods to handle object uniqness in hashset
+        public override bool Equals(object obj)
+        {
+            Contract c = obj as Contract;
+            return c != null && c.Id == this.Id;
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Id.GetHashCode();
+        }
     }
 }

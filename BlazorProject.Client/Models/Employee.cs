@@ -25,7 +25,17 @@ namespace BlazorProject.Client.Models
 
         public Employee()
         {
+        }
 
+        public override bool Equals(object obj)
+        {
+            Employee c = obj as Employee;
+            return c != null && c.Id == this.Id && c.LastName == this.LastName;
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Id.GetHashCode() ^ this.LastName.GetHashCode();
         }
     }
 }
