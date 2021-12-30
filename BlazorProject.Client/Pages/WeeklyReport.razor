@@ -1,10 +1,43 @@
 ﻿@page "/weeklyreport/{year:int}/{weeknumber:int}"
 
 @using System.Globalization
+@using BlazorProject.Client.HttpRepository
+@using BlazorProject.Client.Models
+@inject HttpClient Http
+@inject IContractsHttpRepository ContractsHttpRepo
+@inject IClientsHttpRepository ClientsHttpRepo
+@inject IEmployeesHttpRepository EmployeeHttRepo
 
-<h3>Weekly report for week @weeknumber.ToString() / @year.ToString()</h3>
+@if (isWorking)
+{
+    <p>Generating report...</p>
+}
+else
+{
+    @if (filteredContracts.Count == 0)
+    {
+        <p>There were no contracts for week @weeknumber.ToString() / @year.ToString()</p>
+    }
+    else
+    {
+        <h3>Weekly report for week @weeknumber.ToString() / @year.ToString()</h3>
 
-<p>@Date</p>
+        <p>From @dates.First().ToString("d MMMM") To @dates.Last().ToString("d MMMM") </p>
+
+        <p>These clients gave contracts:</p>
+
+        @foreach (var client in new HashSet<Models.Client>(clients))
+        {
+            <p>@client.Name</p>
+        }
+
+        <p>These employees worked:</p>
+        @foreach (var employee in employees)
+        {
+            <p>@employee.FirstName @employee.LastName</p>
+        }
+    }
+}
 
 @code {
     [Parameter]
@@ -12,21 +45,76 @@
     [Parameter]
     public int weeknumber { get; set; }
 
-    private string Date { get; set; }
+    private bool isWorking { get; set; }
+
+    private List<DateTime> dates = new List<DateTime>();
+
+    private List<Models.Contract> allContracts = new List<Models.Contract>();
+    private List<Models.Contract> filteredContracts = new List<Models.Contract>();
+
+    private List<Models.Client> clients = new List<Models.Client>();
+    private List<Models.Employee> employees = new List<Models.Employee>();
 
     protected override async Task OnInitializedAsync()
     {
-        SetDateRange();
+        isWorking = true;
+        dates = SetDateRange();
+
+        allContracts = await ContractsHttpRepo.GetAll();
+        GetContracts();
+        if (filteredContracts.Count == 0)
+        {
+            return;
+        }
+        await GetClients();
+        await GetEmployees();
+        isWorking = false;
     }
 
-    private void SetDateRange()
+    private async Task GetEmployees()
     {
-        DateTime startDate = FirstDateOfWeekISO8601(year, weeknumber);
-        DateTime endDate = startDate.AddDays(6);
-        string start = startDate.ToString("dd");
-        string end = endDate.ToString("dd-MM-yyyy");
+        foreach (var contract in filteredContracts)
+        {
+            var result = await EmployeeHttRepo.GetOne(contract.Worker);
+            employees.Add(result);
+        }
+    }
 
-        Date = "from " + start + " until " + end;
+    private async Task GetClients()
+    {
+        foreach (var contract in filteredContracts)
+        {
+            var result = await ClientsHttpRepo.GetOne(contract.Contractor);
+            clients.Add(result);
+        }
+    }
+
+    private void GetContracts()
+    {
+        foreach (var date in dates)
+        {
+            foreach (var contract in allContracts)
+            {
+                if (contract.DateRequested.ToString("dd-MM-yyyy") == date.ToString("dd-MM-yyyy") && contract.Completed == true)
+                {
+                    filteredContracts.Add(contract);
+                }
+            }
+        }
+    }
+
+    private List<DateTime> SetDateRange()
+    {
+        List<DateTime> dates = new List<DateTime>();
+        DateTime startDate = FirstDateOfWeekISO8601(year, weeknumber);
+        dates.Add(startDate);
+
+        for (int i = 0; i < 6; i++)
+        {
+            startDate = startDate.AddDays(1);
+            dates.Add(startDate);
+        }
+        return dates;
     }
 
     private DateTime FirstDateOfWeekISO8601(int year, int weekOfYear)
