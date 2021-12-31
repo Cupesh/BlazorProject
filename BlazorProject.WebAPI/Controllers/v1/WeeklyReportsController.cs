@@ -29,25 +29,17 @@ namespace BlazorProject.WebAPI.Controllers.v1
             return Ok(_reports);
         }
 
-        [HttpGet("api/v1/weeklyreports/{id}")]
-        public async Task<IActionResult> GetOne(int id)
+        [HttpGet("api/v1/weeklyreports/{urlString}")]
+        public async Task<IActionResult> GetOne(string urlString)
         {
-            await Db.Connection.OpenAsync();
-            var query = new WeeklyReportsQuery(Db);
-            _report = await query.RetrieveOne(id);
-            return Ok(_report);
-        }
+            string[] idsStrings = urlString.Split('a');
+            int year = Int32.Parse(idsStrings.First());
+            int weekNumber = Int32.Parse(idsStrings.Last());
 
-        [HttpDelete("api/v1/weeklyreports/delete/{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
             await Db.Connection.OpenAsync();
             var query = new WeeklyReportsQuery(Db);
-            var lookup = await query.RetrieveOne(id);
-            if (lookup is null)
-                return new NotFoundResult();
-            var result = await query.DeleteOne(id);
-            return Ok(result);
+            _report = await query.RetrieveOne(year, weekNumber);
+            return Ok(_report);
         }
 
         [HttpGet("api/v1/weeklyreports/lastid")]

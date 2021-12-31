@@ -4,114 +4,21 @@
 @using BlazorProject.Client.HttpRepository
 @using BlazorProject.Client.Models
 @inject HttpClient Http
-@inject IContractsHttpRepository ContractsHttpRepo
-@inject IClientsHttpRepository ClientsHttpRepo
-@inject IEmployeesHttpRepository EmployeeHttRepo
+@inject IWeeklyReportsHttRepository WeeklyReportsHttRepo
 
 @if (isWorking)
 {
-    <p>Generating report...</p>
+    <p>Loading</p>
 }
 else
 {
-    @if (filteredContracts.Count == 0)
+    @if (alreadyExist)
     {
-        <p>There were no contracts for week @weeknumber.ToString() / @year.ToString()</p>
+        <p>Already exists</p>
     }
     else
     {
-        <h3>Weekly report for week @weeknumber.ToString() / @year.ToString()</h3>
-
-        <p>From @dates.First().ToString("d MMMM") To @dates.Last().ToString("d MMMM") </p>
-
-        <p>Generated total of £@paymentsPerContracts.Sum(x => x.Value).ToString()</p>
-        <p>Total hours for this period: @sumHoursByClient.Sum(x => x.Value).ToString()</p>
-
-        <p>@filteredContracts.Count().ToString() contracts were completed for this period:</p>
-        <table>
-            <thead>
-                <tr>
-                    <th>Date Requested</th>
-                    <th>Id</th>
-                    <th>Description</th>
-                    <th>Payment</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var contract in filteredContracts)
-                {
-                    <tr>
-                        <td>@contract.DateRequested.ToString("dd-MMMM")</td>
-                        <td>@contract.Id</td>
-                        <td>@contract.Description</td>
-                        @foreach (KeyValuePair<Models.Contract, decimal> entry in paymentsPerContracts)
-                        {
-                            if (entry.Key.Id == contract.Id)
-                            {
-                                <td>£@entry.Value.ToString()</td>
-                            }
-                        }
-                    </tr>
-                }
-            </tbody>
-        </table>
-
-        <p>------------------------------------------------------</p>
-        <p>Breakdown per client: </p>
-        <table>
-            <thead>
-                <tr>
-                    <th>Client</th>
-                    <th>Hours Contracted</th>
-                    <th>Paid</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (KeyValuePair<Models.Client, int> entry in sumHoursByClient)
-                {
-                    <tr>
-                        <td>@entry.Key.Name</td>
-                        <td>@entry.Value.ToString()</td>
-                        @foreach (KeyValuePair<Models.Client, decimal> anEntry in paymentsPerClients)
-                        {
-                            if (anEntry.Key.Id == entry.Key.Id)
-                            {
-                                <td>£@anEntry.Value.ToString()p</td>
-                            }
-                        }
-                    </tr>
-                }
-            </tbody>
-        </table>
-
-        <p>----------------------------------------------------------</p>
-        <p>Breakdown per employee:</p>
-        <table>
-            <thead>
-                <tr>
-                    <th>Employee</th>
-                    <th>Total Hours</th>
-                    <th>Total monies generated</th>
-                </tr>
-            </thead>
-        </table>
-        <tbody>
-            @foreach (KeyValuePair<Models.Employee, int> entry in sumHoursByEmployee)
-            {
-                <tr>
-                    <td>@entry.Key.FirstName @entry.Key.LastName</td>
-                    <td>@entry.Value.ToString()</td>
-                    @foreach (KeyValuePair<Models.Employee, decimal> anEntry in paymentsPerEmployee)
-                    {
-                        if (anEntry.Key.Id == entry.Key.Id)
-                        {
-                            <td>£@anEntry.Value.ToString()p</td>
-                        }
-                    }
-                </tr> 
-            }
-        </tbody>
-
+        <p>Doesn't exist</p>
     }
 }
 
@@ -119,213 +26,32 @@ else
     [Parameter]
     public int year { get; set; }
     [Parameter]
-    public int weeknumber { get; set; }
+    public int weekNumber { get; set; }
+    private bool isWorking { get; set; } = true;
+    private bool alreadyExist { get; set; }
 
-    private bool isWorking { get; set; }
-
-    private List<DateTime> dates = new List<DateTime>();
-
-    private List<Models.Contract> allContracts = new List<Models.Contract>();
-    private List<Models.Contract> filteredContracts = new List<Models.Contract>();
-
-    HashSet<Models.Client> filteredClients = new HashSet<Models.Client>();
-    HashSet<Models.Employee> filteredEmployees = new HashSet<Models.Employee>();
-
-    private Dictionary<Models.Client, int> sumHoursByClient = new Dictionary<Models.Client, int>();
-    private Dictionary<Models.Employee, int> sumHoursByEmployee = new Dictionary<Models.Employee, int>();
-
-    private Dictionary<Models.Contract, decimal> paymentsPerContracts = new Dictionary<Models.Contract, decimal>();
-    private Dictionary<Models.Client, decimal> paymentsPerClients = new Dictionary<Models.Client, decimal>();
-    private Dictionary<Models.Employee, decimal> paymentsPerEmployee = new Dictionary<Models.Employee, decimal>();
+    private Models.WeeklyReport weeklyReport { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        isWorking = true;
-        dates = SetDateRange();
-
-        allContracts = await ContractsHttpRepo.GetAll();
-        GetContracts();
-        if (filteredContracts.Count == 0)
-        {
-            isWorking = false;
-            return;
-        }
-        await GetClients();
-        await GetEmployees();
-
-        await GenerateReport();
+        weeklyReport = new Models.WeeklyReport();
+        alreadyExist = await CheckIfExists();
 
         isWorking = false;
     }
 
-    private async Task GenerateReport()
+    private async Task<bool> CheckIfExists()
     {
-        foreach (var client in filteredClients)
+        bool exists;
+        try
         {
-            int sum = GetSumHoursByClient(client.Id);
-            sumHoursByClient.Add(client, sum);
+            weeklyReport = await WeeklyReportsHttRepo.GetOne(year, weekNumber);
+            exists = true;
         }
-
-        foreach (var employee in filteredEmployees)
+        catch
         {
-            int sum = GetSumHoursByEmployee(employee.Id);
-            sumHoursByEmployee.Add(employee, sum);
+            exists = false;
         }
-
-        await GetPayments();
-
-        return;
+        return exists;
     }
-
-    private async Task GetPayments()
-    {
-        foreach (var client in filteredClients)
-        {
-            paymentsPerClients.Add(client, 0m);
-        }
-
-        foreach (var employee in filteredEmployees)
-        {
-            paymentsPerEmployee.Add(employee, 0m);
-        }
-
-        foreach (var contract in filteredContracts)
-        {
-            var employee = await EmployeeHttRepo.GetOne(contract.Worker);
-            var client = await ClientsHttpRepo.GetOne(contract.Contractor);
-
-            if (employee.Position == 1)
-            {
-                decimal payment = client.PayRate1 * contract.HoursWorked;
-                paymentsPerContracts.Add(contract, payment);
-
-                paymentsPerClients[client] += payment;
-                paymentsPerEmployee[employee] += payment;
-            }
-            else
-            {
-                decimal payment = client.PayRate2 * contract.HoursWorked;
-                paymentsPerContracts.Add(contract, payment);
-
-                paymentsPerClients[client] += payment;
-                paymentsPerEmployee[employee] += payment;
-            }
-        }
-    }
-
-    private int GetSumHoursByEmployee(int id)
-    {
-        int sum = 0;
-
-        foreach (var contract in filteredContracts)
-        {
-            if (contract.Worker == id)
-            {
-                sum += contract.HoursWorked;
-            }
-        }
-        return sum;
-    }
-
-    private int GetSumHoursByClient(int id)
-    {
-        int sum = 0;
-
-        foreach (var contract in filteredContracts)
-        {
-            if (contract.Contractor == id)
-            {
-                sum += contract.HoursWorked;
-            }
-        }
-        return sum;
-    }
-
-    private async Task GetEmployees()
-    {
-        List<Models.Employee> employees = new List<Models.Employee>();
-
-        foreach (var contract in filteredContracts)
-        {
-            var result = await EmployeeHttRepo.GetOne(contract.Worker);
-            employees.Add(result);
-        }
-
-        foreach (var employee in employees)
-        {
-            filteredEmployees.Add(employee);
-        }
-    }
-
-    private async Task GetClients()
-    {
-        List<Models.Client> clients = new List<Models.Client>();
-
-        foreach (var contract in filteredContracts)
-        {
-            var result = await ClientsHttpRepo.GetOne(contract.Contractor);
-            clients.Add(result);
-        }
-
-        foreach (var client in clients)
-        {
-            filteredClients.Add(client);
-        }
-    }
-
-    private void GetContracts()
-    {
-        foreach (var date in dates)
-        {
-            foreach (var contract in allContracts)
-            {
-                if (contract.DateRequested.ToString("dd-MM-yyyy") == date.ToString("dd-MM-yyyy") && contract.Completed == true)
-                {
-                    filteredContracts.Add(contract);
-                }
-            }
-        }
-    }
-
-    private List<DateTime> SetDateRange()
-    {
-        List<DateTime> dates = new List<DateTime>();
-        DateTime startDate = FirstDateOfWeekISO8601(year, weeknumber);
-        dates.Add(startDate);
-
-        for (int i = 0; i < 6; i++)
-        {
-            startDate = startDate.AddDays(1);
-            dates.Add(startDate);
-        }
-        return dates;
-    }
-
-    private DateTime FirstDateOfWeekISO8601(int year, int weekOfYear)
-    {
-        DateTime jan1 = new DateTime(year, 1, 1);
-        int daysOffset = DayOfWeek.Thursday - jan1.DayOfWeek;
-
-        // Use first Thursday in January to get first week of the year as
-        // it will never be in Week 52/53
-        DateTime firstThursday = jan1.AddDays(daysOffset);
-        var cal = CultureInfo.CurrentCulture.Calendar;
-        int firstWeek = cal.GetWeekOfYear(firstThursday, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
-
-        var weekNum = weekOfYear;
-        // As we're adding days to a date in Week 1,
-        // we need to subtract 1 in order to get the right date for week #1
-        if (firstWeek == 1)
-        {
-            weekNum -= 1;
-        }
-
-        // Using the first Thursday as starting week ensures that we are starting in the right year
-        // then we add number of weeks multiplied with days
-        var result = firstThursday.AddDays(weekNum * 7);
-
-        // Subtract 3 days from Thursday to get Monday, which is the first weekday in ISO8601
-        return result.AddDays(-3);
-    }
-
 }

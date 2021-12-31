@@ -23,6 +23,7 @@ namespace BlazorProject.Client
             builder.Services.AddScoped<IPositionsHttpRepository, PositionsHttpRepository>();
             builder.Services.AddScoped<IClientsHttpRepository, ClientsHttpRepository>();
             builder.Services.AddScoped<IContractsHttpRepository, ContractsHttpRepository>();
+            builder.Services.AddScoped<IWeeklyReportsHttRepository, WeeklyReportsHttpRepository>();
 
             //builder.Services.AddOidcAuthentication(options =>
             //{

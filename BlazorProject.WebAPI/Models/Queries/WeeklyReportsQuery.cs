@@ -29,15 +29,21 @@ namespace BlazorProject.WebAPI.Models.Queries
             return result;
         }
 
-        public async Task<WeeklyReport> RetrieveOne(int id)
+        public async Task<WeeklyReport> RetrieveOne(int year, int weekNumber)
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"SELECT id, year, week_number FROM weekly_reports WHERE id = @id";
+            cmd.CommandText = @"SELECT id, year, week_number FROM weekly_reports WHERE year = @year AND week_number = @weekNumber";
             cmd.Parameters.Add(new MySqlParameter
             {
-                ParameterName = "@id",
+                ParameterName = "@year",
                 DbType = DbType.Int32,
-                Value = id,
+                Value = year,
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@weekNumber",
+                DbType = DbType.Int32,
+                Value = weekNumber,
             });
             var result = await ReadAll(await cmd.ExecuteReaderAsync());
             return result.Count > 0 ? result[0] : null;
