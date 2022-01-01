@@ -1,125 +1,112 @@
 ﻿@page "/weeklyreport/{year:int}/{weeknumber:int}"
 
-@using System.Globalization
 @using BlazorProject.Client.HttpRepository
 @using BlazorProject.Client.Models
 @using BlazorProject.Client.Components
 @inject HttpClient Http
 @inject IWeeklyReportsHttRepository WeeklyReportsHttRepo
+@inject NavigationManager NavManager
 
 @if (isWorking)
 {
-    <p>Loading</p>
+    <p>Loading...</p>
 }
 else
 {
-    @if (alreadyExist)
-    {
-        <p>Already exists</p>
-    }
-    else
-    {
-        if (!containsContracts)
-        {
-            <p>There were no contracts for this period</p>
-        }
-        else
-        {
-            <h3> Weekly report for week @weekNumber.ToString() / @year.ToString()</h3>
+    <h3> Weekly report for week @weekNumber.ToString() / @year.ToString()</h3>
 
-            <p>From @report.DatesRange.First().ToString("d MMMM") To @report.DatesRange.Last().ToString("d MMMM") </p>
+    <p>From @report.DatesRange.First().ToString("d MMMM") To @report.DatesRange.Last().ToString("d MMMM") </p>
 
-            <p>Generated total of £@report.PaymentsPerContracts.Sum(x => x.Value).ToString()</p>
-            <p>Total hours for this period: @report.SumHoursByClient.Sum(x => x.Value).ToString()</p>
+    <p>Generated total of £@report.PaymentsPerContracts.Sum(x => x.Value).ToString()</p>
+    <p>Total hours for this period: @report.SumHoursByClient.Sum(x => x.Value).ToString()</p>
 
-            <p>@report.FilteredContracts.Count().ToString() contracts were completed for this period:</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Date Requested</th>
-                        <th>Id</th>
-                        <th>Description</th>
-                        <th>Payment</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var contract in report.FilteredContracts)
+    <p>@report.FilteredContracts.Count().ToString() contracts were completed for this period:</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Date Requested</th>
+                <th>Id</th>
+                <th>Description</th>
+                <th>Payment</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var contract in report.FilteredContracts)
+            {
+                <tr>
+                    <td>@contract.DateRequested.ToString("dd-MMMM")</td>
+                    <td>@contract.Id</td>
+                    <td>@contract.Description</td>
+                    @foreach (KeyValuePair<Models.Contract, decimal> entry in report.PaymentsPerContracts)
                     {
-                        <tr>
-                            <td>@contract.DateRequested.ToString("dd-MMMM")</td>
-                            <td>@contract.Id</td>
-                            <td>@contract.Description</td>
-                            @foreach (KeyValuePair<Models.Contract, decimal> entry in report.PaymentsPerContracts)
-                            {
-                                if (entry.Key.Id == contract.Id)
-                                {
-                                    <td>£@entry.Value.ToString()</td>
-                                }
-                            }
-                        </tr>
-                    }
-                </tbody>
-            </table>
-
-            <p>------------------------------------------------------</p>
-            <p>Breakdown per client: </p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Client</th>
-                        <th>Hours Contracted</th>
-                        <th>Paid</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (KeyValuePair<Models.Client, int> entry in report.SumHoursByClient)
-                    {
-                        <tr>
-                            <td>@entry.Key.Name</td>
-                            <td>@entry.Value.ToString()</td>
-                            @foreach (KeyValuePair<Models.Client, decimal> anEntry in report.PaymentsPerClients)
-                            {
-                                if (anEntry.Key.Id == entry.Key.Id)
-                                {
-                                    <td>£@anEntry.Value.ToString()p</td>
-                                }
-                            }
-                        </tr>
-                    }
-                </tbody>
-            </table>
-
-            <p>----------------------------------------------------------</p>
-            <p>Breakdown per employee:</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Employee</th>
-                        <th>Total Hours</th>
-                        <th>Total monies generated</th>
-                    </tr>
-                </thead>
-            </table>
-            <tbody>
-                @foreach (KeyValuePair<Models.Employee, int> entry in report.SumHoursByEmployee)
-                {
-                    <tr>
-                        <td>@entry.Key.FirstName @entry.Key.LastName</td>
-                        <td>@entry.Value.ToString()</td>
-                        @foreach (KeyValuePair<Models.Employee, decimal> anEntry in report.PaymentsPerEmployee)
+                        if (entry.Key.Id == contract.Id)
                         {
-                            if (anEntry.Key.Id == entry.Key.Id)
-                            {
-                                <td>£@anEntry.Value.ToString()p</td>
-                            }
+                            <td>£@entry.Value.ToString()</td>
                         }
-                    </tr>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
 
+    <p>------------------------------------------------------</p>
+    <p>Breakdown per client: </p>
+    <table>
+        <thead>
+            <tr>
+                <th>Client</th>
+                <th>Hours Contracted</th>
+                <th>Paid</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (KeyValuePair<Models.Client, int> entry in report.SumHoursByClient)
+            {
+                <tr>
+                    <td>@entry.Key.Name</td>
+                    <td>@entry.Value.ToString()</td>
+                    @foreach (KeyValuePair<Models.Client, decimal> anEntry in report.PaymentsPerClients)
+                    {
+                        if (anEntry.Key.Id == entry.Key.Id)
+                        {
+                            <td>£@anEntry.Value.ToString()p</td>
+                        }
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <p>----------------------------------------------------------</p>
+    <p>Breakdown per employee:</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Employee</th>
+                <th>Total Hours</th>
+                <th>Total monies generated</th>
+            </tr>
+        </thead>
+    </table>
+    <tbody>
+        @foreach (KeyValuePair<Models.Employee, int> entry in report.SumHoursByEmployee)
+        {
+            <tr>
+                <td>@entry.Key.FirstName @entry.Key.LastName</td>
+                <td>@entry.Value.ToString()</td>
+                @foreach (KeyValuePair<Models.Employee, decimal> anEntry in report.PaymentsPerEmployee)
+                {
+                    if (anEntry.Key.Id == entry.Key.Id)
+                    {
+                        <td>£@anEntry.Value.ToString()p</td>
+                    }
                 }
-            </tbody>
+            </tr>
+
         }
-    }
+    </tbody>
 }
+
 
 @code {
     [Parameter]
@@ -128,39 +115,18 @@ else
     public int weekNumber { get; set; }
 
     private bool isWorking { get; set; } = true;
-    private bool alreadyExist { get; set; }
-    private bool containsContracts { get; set; }
 
     private Models.WeeklyReport report { get; set; }
     private WeeklyReportsGenerator reportGenerator { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        alreadyExist = await CheckIfExists();
-
-        if (containsContracts)
-        {
-            reportGenerator.Generate();
-            report = reportGenerator.Report;
-        }
+        reportGenerator = new WeeklyReportsGenerator(year, weekNumber);
+        await reportGenerator.GetData();
+        await reportGenerator.Generate();
+        report = reportGenerator.Report;
 
         isWorking = false;
     }
 
-    private async Task<bool> CheckIfExists()
-    {
-        bool exists;
-        try
-        {
-            report = await WeeklyReportsHttRepo.GetOne(year, weekNumber);
-            exists = true;
-        }
-        catch
-        {
-            exists = false;
-            reportGenerator = new WeeklyReportsGenerator(year, weekNumber);
-            containsContracts = reportGenerator.Report.FilteredContracts != null ? true : false;
-        }
-        return exists;
-    }
 }

@@ -32,7 +32,7 @@ namespace BlazorProject.WebAPI.Models.Queries
         public async Task<WeeklyReport> RetrieveOne(int year, int weekNumber)
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"SELECT id, year, week_number FROM weekly_reports WHERE year = @year AND week_number = @weekNumber";
+            cmd.CommandText = @"SELECT year, week_number FROM weekly_reports WHERE year = @year AND week_number = @weekNumber";
             cmd.Parameters.Add(new MySqlParameter
             {
                 ParameterName = "@year",
@@ -49,26 +49,35 @@ namespace BlazorProject.WebAPI.Models.Queries
             return result.Count > 0 ? result[0] : null;
         }
 
-        public async Task<IActionResult> DeleteOne(int id)
+        public async Task<IActionResult> CreateOne(WeeklyReport report)
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"DELETE FROM weekly_reports WHERE id = @id";
-            cmd.Parameters.Add(new MySqlParameter
-            {
-                ParameterName = "@id",
-                DbType = DbType.Int32,
-                Value = id
-            });
+            cmd.CommandText = @"INSERT INTO weekly_reports (year, week_number) 
+                                VALUES (@year, @week_number);";
+            report.BindParams(cmd);
             var result = await cmd.ExecuteNonQueryAsync();
+
             return new OkObjectResult(result);
         }
 
-        public async Task<int> RetrieveLastId()
+        public async Task<IActionResult> DeleteOne(int year, int weekNumber)
         {
             using var cmd = Db.Connection.CreateCommand();
-            cmd.CommandText = @"SELECT * FROM weekly_reports WHERE id = (SELECT MAX(id) FROM weekly_reports)";
-            var result = await ReadAll(await cmd.ExecuteReaderAsync());
-            return result.Count > 0 ? result[0].Id : -1;
+            cmd.CommandText = @"DELETE FROM weekly_reports WHERE year = @year AND week_number = @week_number";
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@year",
+                DbType = DbType.Int32,
+                Value = year
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@week_number",
+                DbType = DbType.Int32,
+                Value = weekNumber
+            });
+            var result = await cmd.ExecuteNonQueryAsync();
+            return new OkObjectResult(result);
         }
 
         public async Task<List<WeeklyReport>> ReadAll(DbDataReader reader)
@@ -81,9 +90,8 @@ namespace BlazorProject.WebAPI.Models.Queries
                 {
                     var report = new WeeklyReport(Db)
                     {
-                        Id = reader.GetInt32(0),
-                        Year = reader.GetInt32(1),
-                        WeekNumber = reader.GetInt32(2),
+                        Year = reader.GetInt32(0),
+                        WeekNumber = reader.GetInt32(1),
                     };
                     reports.Add(report);
                 }

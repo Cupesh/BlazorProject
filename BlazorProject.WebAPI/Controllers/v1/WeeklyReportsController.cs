@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace BlazorProject.WebAPI.Controllers.v1
@@ -42,12 +43,13 @@ namespace BlazorProject.WebAPI.Controllers.v1
             return Ok(_report);
         }
 
-        [HttpGet("api/v1/weeklyreports/lastid")]
-        public async Task<IActionResult> GetLastId()
+        [HttpPost("api/v1/weeklyreports/new")]
+        public async Task<IActionResult> Post([FromBody] string report)
         {
+            WeeklyReport _report = JsonSerializer.Deserialize<WeeklyReport>(report);
             await Db.Connection.OpenAsync();
             var query = new WeeklyReportsQuery(Db);
-            var result = await query.RetrieveLastId();
+            var result = await query.CreateOne(_report);
             return Ok(result);
         }
     }

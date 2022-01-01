@@ -10,7 +10,6 @@ namespace BlazorProject.WebAPI.Models
 {
     public class WeeklyReport
     {
-        public int Id { get; set; }
         public int Year { get; set; }
         public int WeekNumber { get; set; }
 
@@ -27,12 +26,6 @@ namespace BlazorProject.WebAPI.Models
 
         public void BindParams(MySqlCommand cmd)
         {
-            cmd.Parameters.Add(new MySqlParameter
-            {
-                ParameterName = "@id",
-                DbType = DbType.Int32,
-                Value = Id
-            });
             cmd.Parameters.Add(new MySqlParameter
             {
                 ParameterName = "@year",

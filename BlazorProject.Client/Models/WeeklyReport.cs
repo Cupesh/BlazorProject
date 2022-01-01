@@ -6,8 +6,6 @@ namespace BlazorProject.Client.Models
 {
     public class WeeklyReport
     {
-        public int Id { get; set; }
-
         [Required]
         [Range(2021, 2022, ErrorMessage ="Enter a valid year")]
         public int Year { get; set; }

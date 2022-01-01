@@ -29,40 +29,37 @@ namespace BlazorProject.Client.Components
 
             Report = new WeeklyReport(year, weekNumber);
             Report.DatesRange = SetDateRange(year, weekNumber);
-
-            GetData();
         }
 
-        public async void GetData()
+        public async Task GetData()
         {
             Report.FilteredContracts = await GetContracts();
             Report.FilteredClients = await GetClients();
             Report.FilteredEmployees = await GetEmployees();
         }
 
-        public void Generate()
+        public async Task Generate()
         {
-            GetSumHours();
-            GetPayments();
+            await GetSumHours();
+            await GetPayments();
         }
 
-        private void GetSumHours()
+        private async Task GetSumHours()
         {
             foreach (var client in Report.FilteredClients)
             {
-                int sum = GetSumHoursByClient(client.Id);
+                int sum = await GetSumHoursByClient(client.Id);
                 Report.SumHoursByClient.Add(client, sum);
             }
 
             foreach (var employee in Report.FilteredEmployees)
             {
-                int sum = GetSumHoursByEmployee(employee.Id);
+                int sum = await GetSumHoursByEmployee(employee.Id);
                 Report.SumHoursByEmployee.Add(employee, sum);
             }
-            return;
         }
 
-        private int GetSumHoursByEmployee(int id)
+        private Task<int> GetSumHoursByEmployee(int id)
         {
             int sum = 0;
 
@@ -73,10 +70,10 @@ namespace BlazorProject.Client.Components
                     sum += contract.HoursWorked;
                 }
             }
-            return sum;
+            return Task.FromResult(sum);
         }
 
-        private int GetSumHoursByClient(int id)
+        private Task<int> GetSumHoursByClient(int id)
         {
             int sum = 0;
 
@@ -87,10 +84,10 @@ namespace BlazorProject.Client.Components
                     sum += contract.HoursWorked;
                 }
             }
-            return sum;
+            return Task.FromResult(sum);
         }
 
-        private async void GetPayments()
+        private async Task GetPayments()
         {
             foreach (var client in Report.FilteredClients)
             {

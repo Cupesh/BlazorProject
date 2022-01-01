@@ -1,0 +1,71 @@
+﻿@page "/reports/archive"
+
+@using BlazorProject.Client.HttpRepository
+@using BlazorProject.Client.Models
+@using BlazorProject.Client.Components
+@inject HttpClient Http
+@inject IWeeklyReportsHttRepository WeeklyReportsHttRepo
+@inject NavigationManager NavManager
+
+@if (weeklyReports == null)
+{
+    <p>There are no reports yet</p>
+}
+else
+{
+    <h4>Weekly Reports</h4>
+    <table>
+        <thead>
+            <tr>
+                <th>Week Number</th>
+                <th>Year</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var report in weeklyReports)
+            {
+                <tr>
+                    <td>@report.WeekNumber</td>
+                    <td>@report.Year</td>
+                    <td><button class="btn btn-primary" @onclick="(e => ViewWeeklyReport(report.Year, report.WeekNumber))">View</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <h4>Monthly Reports</h4>
+    <table>
+        <thead>
+            <tr>
+                <th>Month</th>
+                <th>Year</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+}
+
+
+@code {
+    private List<Models.WeeklyReport> weeklyReports;
+    private List<Models.MonthlyReport> monthlyReports;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await WeeklyReportsHttRepo.GetAll();
+
+        weeklyReports = result.ToList();
+    }
+
+    private void ViewWeeklyReport(int year, int weekNumber)
+    {
+        NavManager.NavigateTo("/weeklyreport/" + year + "/" + weekNumber);
+    }
+
+    private void ViewMonthlyReport()
+    {
+
+    }
+}
