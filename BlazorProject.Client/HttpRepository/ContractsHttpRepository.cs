@@ -17,6 +17,7 @@ namespace BlazorProject.Client.HttpRepository
         public ContractsHttpRepository(HttpClient client)
         {
             _client = client;
+            Console.WriteLine(client.BaseAddress);
             _options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         }
 
