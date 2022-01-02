@@ -1,10 +1,10 @@
-﻿@page "/weeklyreport/{year:int}/{weeknumber:int}"
+﻿@page "/monthlyreports/{year:int}/{month:int}"
 
 @using BlazorProject.Client.HttpRepository
 @using BlazorProject.Client.Models
 @using BlazorProject.Client.Components
 @inject HttpClient Http
-@inject IWeeklyReportsHttpRepository WeeklyReportsHttRepo
+@inject IMonthlyReportsHttpRepository MonthlyReportsHttRepo
 @inject NavigationManager NavManager
 
 @if (isWorking)
@@ -13,9 +13,7 @@
 }
 else
 {
-    <h3> Weekly report for week @weekNumber.ToString() / @year.ToString()</h3>
-
-    <p>From @report.DatesRange.First().ToString("d MMMM") To @report.DatesRange.Last().ToString("d MMMM") </p>
+    <h3> Monthly report for @month.ToString() / @year.ToString()</h3>
 
     <p>Generated total of £@report.PaymentsPerContracts.Sum(x => x.Value).ToString()</p>
     <p>Total hours for this period: @report.SumHoursByClient.Sum(x => x.Value).ToString()</p>
@@ -112,16 +110,16 @@ else
     [Parameter]
     public int year { get; set; }
     [Parameter]
-    public int weekNumber { get; set; }
+    public int month { get; set; }
 
     private bool isWorking { get; set; } = true;
 
-    private Models.WeeklyReport report { get; set; }
-    private WeeklyReportsGenerator reportGenerator { get; set; }
+    private Models.MonthlyReport report { get; set; }
+    private MonthlyReportsGenerator reportGenerator { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        reportGenerator = new WeeklyReportsGenerator(year, weekNumber);
+        reportGenerator = new MonthlyReportsGenerator(year, month);
         await reportGenerator.GetData();
         await reportGenerator.Generate();
         report = reportGenerator.Report;

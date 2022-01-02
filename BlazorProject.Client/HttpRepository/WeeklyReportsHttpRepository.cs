@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace BlazorProject.Client.HttpRepository
 {
-    public class WeeklyReportsHttpRepository : IWeeklyReportsHttRepository
+    public class WeeklyReportsHttpRepository : IWeeklyReportsHttpRepository
     {
         private readonly HttpClient _client;
         private readonly JsonSerializerOptions _options;

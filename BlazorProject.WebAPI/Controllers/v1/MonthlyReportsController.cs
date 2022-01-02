@@ -43,7 +43,7 @@ namespace BlazorProject.WebAPI.Controllers.v1
             return Ok(_report);
         }
 
-        [HttpPost("api/v1/weeklyreports/new")]
+        [HttpPost("api/v1/monthlyreports/new")]
         public async Task<IActionResult> Post([FromBody] string report)
         {
             MonthlyReport _report = JsonSerializer.Deserialize<MonthlyReport>(report);

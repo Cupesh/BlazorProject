@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BlazorProject.Client.HttpRepository
 {
-    public interface IWeeklyReportsHttRepository
+    public interface IWeeklyReportsHttpRepository
     {
         Task<List<WeeklyReport>> GetAll();
         Task<WeeklyReport> GetOne(int year, int weekNumber);

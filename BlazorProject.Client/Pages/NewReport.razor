@@ -27,7 +27,17 @@
             </EditForm>
             break;
         case Models.ReportType.Monthly:
-            <p>!</p>
+            <EditForm Model="@monthlyReportForm" OnValidSubmit="@GenerateMonthlyReport">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <dl>
+                    <dt>Enter a year</dt>
+                    <dd><InputNumber @bind-Value="monthlyReportForm.Year" /></dd>
+                    <dt>Enter a month</dt>
+                    <dd><InputNumber @bind-Value="monthlyReportForm.Month" /></dd>
+                </dl>
+                <button type="submit">Generate report</button>
+            </EditForm>
             break;
         case Models.ReportType.Quarterly:
             <p>!!</p>
@@ -58,24 +68,16 @@ else
     private Models.ReportType selectedReportType;
 
     private Models.WeeklyReport weeklyReportForm = new Models.WeeklyReport();
-    private string Test { get; set; }
+    private Models.MonthlyReport monthlyReportForm = new Models.MonthlyReport();
 
 
     private void GenerateWeeklyReport()
     {
-        //DateTime date = FirstDateOfWeekISO8601(weeklyReportForm.Year, weeklyReportForm.WeekNumber);
-
         NavManager.NavigateTo("/weeklyreport/new/" + weeklyReportForm.Year + "/" + weeklyReportForm.WeekNumber);
     }
 
-    private int GetWeekNo(DateTime date)
+    private void GenerateMonthlyReport()
     {
-        CultureInfo currentCulture = CultureInfo.CurrentCulture;
-        int weekNo = currentCulture.Calendar.GetWeekOfYear(
-                        date,
-                        currentCulture.DateTimeFormat.CalendarWeekRule,
-                        currentCulture.DateTimeFormat.FirstDayOfWeek);
-
-        return weekNo;
+        NavManager.NavigateTo("/monthlyreport/new/" + monthlyReportForm.Year + "/" + monthlyReportForm.Month);
     }
 }

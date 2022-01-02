@@ -1,10 +1,10 @@
-﻿@page "/weeklyreport/new/{year:int}/{weeknumber:int}"
+﻿@page "/monthlyreport/new/{year:int}/{month:int}"
 
 @using BlazorProject.Client.HttpRepository
 @using BlazorProject.Client.Models
 @using BlazorProject.Client.Components
 @inject HttpClient Http
-@inject IWeeklyReportsHttpRepository WeeklyReportsHttRepo
+@inject IMonthlyReportsHttpRepository MonthlyReportsHttRepo
 @inject NavigationManager NavManager
 
 @if (isWorking)
@@ -15,20 +15,18 @@ else
 {
     @if (alreadyExist)
     {
-        <p>There is already existing report archived for this period</p>
-        <button class="btn btn-primary" @onclick="(e => NavToArchive(year, weekNumber))">Take me there</button>
+        <p>There is already existing report archived for this month</p>
+        <button class="btn btn-primary" @onclick="(e => NavToArchive(year, month))">Take me there</button>
     }
     else
     {
         if (!containsContracts)
         {
-            <p>There were no contracts for this period</p>
+            <p>There were no contracts for this month</p>
         }
         else
         {
-            <h3> Weekly report for week @weekNumber.ToString() / @year.ToString()</h3>
-
-            <p>From @report.DatesRange.First().ToString("d MMMM") To @report.DatesRange.Last().ToString("d MMMM") </p>
+            <h3> Monthly report for @month.ToString() / @year.ToString()</h3>
 
             <p>Generated total of £@report.PaymentsPerContracts.Sum(x => x.Value).ToString()</p>
             <p>Total hours for this period: @report.SumHoursByClient.Sum(x => x.Value).ToString()</p>
@@ -128,14 +126,14 @@ else
     [Parameter]
     public int year { get; set; }
     [Parameter]
-    public int weekNumber { get; set; }
+    public int month { get; set; }
 
     private bool isWorking { get; set; } = true;
     private bool alreadyExist { get; set; }
     private bool containsContracts { get; set; }
 
-    private Models.WeeklyReport report { get; set; }
-    private WeeklyReportsGenerator reportGenerator { get; set; }
+    private Models.MonthlyReport report { get; set; }
+    private MonthlyReportsGenerator reportGenerator { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -152,13 +150,13 @@ else
 
     private async Task Archive()
     {
-        await WeeklyReportsHttRepo.PostOne(report);
+        await MonthlyReportsHttRepo.PostOne(report);
         NavManager.NavigateTo("/reports/archive");
     }
 
-    private void NavToArchive(int year, int weekNumber)
+    private void NavToArchive(int year, int month)
     {
-        NavManager.NavigateTo("/weeklyreport/" + year + "/" + weekNumber);
+        NavManager.NavigateTo("/monthlyreports/" + year + "/" + month);
     }
 
     private async Task<bool> CheckIfExists()
@@ -166,13 +164,13 @@ else
         bool exists;
         try
         {
-            report = await WeeklyReportsHttRepo.GetOne(year, weekNumber);
+            report = await MonthlyReportsHttRepo.GetOne(year, month);
             exists = true;
         }
         catch
         {
             exists = false;
-            reportGenerator = new WeeklyReportsGenerator(year, weekNumber);
+            reportGenerator = new MonthlyReportsGenerator(year, month);
             await reportGenerator.GetData();
             containsContracts = reportGenerator.Report.FilteredContracts != null ? true : false;
         }
