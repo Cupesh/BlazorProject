@@ -13,7 +13,7 @@
 }
 else
 {
-    <h3> Monthly report for @month.ToString() / @year.ToString()</h3>
+    <h3>Monthly report for @month.ToString() / @year.ToString()</h3>
 
     <p>Generated total of £@report.PaymentsPerContracts.Sum(x => x.Value).ToString()</p>
     <p>Total hours for this period: @report.SumHoursByClient.Sum(x => x.Value).ToString()</p>

@@ -17,7 +17,18 @@
 }
 else
 {
-    <PlotlyChart Id="TestId" Config="config" Layout="layout" Data="data" @ref="chart" />
+    <h3>Quarterly report @quarter.ToString()/@year.ToString()</h3>
+    <PlotlyChart Id="TestId" Config="config" Layout="layoutPaymentsChart" Data="dataPaymentsChart" @ref="paymentsChart" />
+    <table>
+        <tr>
+            <td><div id="chart1_div" style="width: 400px; height: 300px;"><PlotlyChart Id="AnotherID" Config="config" Layout="layoutMonthOneChart" Data="dataMonthOneChart" @ref="monthOneChart" /></div></td>
+            <td><div id="chart2_div" style="width: 400px; height: 300px;"><PlotlyChart Id="AnotherOneID" Config="config" Layout="layoutMonthTwoChart" Data="dataMonthTwoChart" @ref="monthTwoChart" /></div></td>
+            <td><div id="chart3_div" style="width: 400px; height: 300px;"><PlotlyChart Id="AnotherOneNewID" Config="config" Layout="layoutMonthThreeChart" Data="dataMonthThreeChart" @ref="monthThreeChart" /></div></td>
+        </tr>
+    </table>
+    
+
+    <PlotlyChart Id="DifferentId" Config="config" Layout="layoutHoursChart" Data="dataHoursChart" @ref="hoursChart" />
 }
 
 
@@ -29,27 +40,38 @@ else
     public int quarter { get; set; }
 
     private bool isWorking { get; set; } = true;
-
     private MonthlyReportsGenerator reportGenerator { get; set; }
     private List<Models.MonthlyReport> reports { get; set; }
-
     private List<int> months;
-
-    PlotlyChart chart;
-    Config config = new Config
+    private PlotlyChart paymentsChart;
+    private PlotlyChart hoursChart;
+    private PlotlyChart monthOneChart;
+    private PlotlyChart monthTwoChart;
+    private PlotlyChart monthThreeChart;
+    private Config config = new Config
     {
         Responsive = true
     };
-
-    private Layout layout;
-
-    List<ITrace> data;
+    private Layout layoutPaymentsChart;
+    private Layout layoutHoursChart;
+    private Layout layoutMonthOneChart;
+    private Layout layoutMonthTwoChart;
+    private Layout layoutMonthThreeChart;
+    private List<ITrace> dataPaymentsChart;
+    private List<ITrace> dataHoursChart;
+    private List<ITrace> dataMonthOneChart;
+    private List<ITrace> dataMonthTwoChart;
+    private List<ITrace> dataMonthThreeChart;
 
     protected override async Task OnInitializedAsync()
     {
         reports = new List<Models.MonthlyReport>();
         await GetReports();
-        await PopulateChart();
+        await PopulatePaymentsChart();
+        await PopulateMonthOneChart();
+        await PopulateMonthTwoChart();
+        await PopulateMonthThreeChart();
+        await PopulateHoursChart();
 
         isWorking = false;
     }
@@ -59,7 +81,7 @@ else
         switch (quarter)
         {
             case 1:
-                months = new List<int>() { 1, 2, 3};
+                months = new List<int>() { 1, 2, 3 };
                 break;
             case 2:
                 months = new List<int>() { 4, 5, 6 };
@@ -83,39 +105,141 @@ else
         }
     }
 
-    private Task PopulateChart()
+    private Task PopulateMonthThreeChart()
     {
-
-        layout = new Layout
+        layoutMonthThreeChart = new Layout
         {
             Title = new Title
             {
-                Text = "Quarterly report " + quarter.ToString() + "/" + year.ToString()
+                Text = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(months[2])
+            },
+            Height = 250
+        };
+
+        dataMonthThreeChart = new List<ITrace>();
+        var pie = new Pie
+        {
+            Values = new List<object>(),
+            Labels = new List<object>()
+        };
+
+        foreach (KeyValuePair<Models.Client, decimal> entry in reports[2].PaymentsPerClients)
+        {
+            pie.Values.Add(entry.Value);
+            pie.Labels.Add(entry.Key.Name);
+        }
+        dataMonthThreeChart.Add(pie);
+
+        return Task.CompletedTask;
+    }
+
+    private Task PopulateMonthTwoChart()
+    {
+        layoutMonthTwoChart = new Layout
+        {
+            Title = new Title
+            {
+                Text = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(months[1])
+            },
+            Height = 250
+        };
+
+        dataMonthTwoChart = new List<ITrace>();
+        var pie = new Pie
+        {
+            Values = new List<object>(),
+            Labels = new List<object>()
+        };
+
+        foreach (KeyValuePair<Models.Client, decimal> entry in reports[1].PaymentsPerClients)
+        {
+            pie.Values.Add(entry.Value);
+            pie.Labels.Add(entry.Key.Name);
+        }
+        dataMonthTwoChart.Add(pie);
+
+        return Task.CompletedTask;
+    }
+
+    private Task PopulateMonthOneChart()
+    {
+        layoutMonthOneChart = new Layout
+        {
+            Title = new Title
+            {
+                Text = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(months[0])
+            },
+            Height = 250
+        };
+
+        dataMonthOneChart = new List<ITrace>();
+        var pie = new Pie
+        {
+            Values = new List<object>(),
+            Labels = new List<object>()
+        };
+
+        foreach (KeyValuePair<Models.Client, decimal> entry in reports[0].PaymentsPerClients)
+        {
+            pie.Values.Add(entry.Value);
+            pie.Labels.Add(entry.Key.Name);
+        }
+        dataMonthOneChart.Add(pie);
+
+        return Task.CompletedTask;
+    }
+
+    private Task PopulatePaymentsChart()
+    {
+
+        layoutPaymentsChart = new Layout
+        {
+            Title = new Title
+            {
+                Text = "Payments received"
             },
             BarMode = BarModeEnum.Stack,
             Height = 500
         };
 
-        data = new List<ITrace>
+        dataPaymentsChart = new List<ITrace>
         {
             new Bar
             {
                 X = new List<object> { CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(months[0]),
-                                       CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(months[1]),
-                                       CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(months[2])},
-                Y = new List<object> { 5800, 3569, 7520 },
+                                        CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(months[1]),
+                                        CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(months[2])},
+                Y = new List<object> { reports[0].PaymentsTotal, reports[1].PaymentsTotal, reports[2].PaymentsTotal },
                 Name = "Payments received"
-            },
-            new Bar
-            {
-                X = new List<object> { CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(months[0]),
-                                       CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(months[1]),
-                                       CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(months[2])},
-                Y = new List<object> { 50, 5, 15},
-                Name = "Total hours"
             },
         };
 
+        return Task.CompletedTask;
+    }
+
+    private Task PopulateHoursChart()
+    {
+        layoutHoursChart = new Layout
+        {
+            Title = new Title
+            {
+                Text = "Hours worked"
+            },
+            BarMode = BarModeEnum.Stack,
+            Height = 500
+        };
+
+        dataHoursChart = new List<ITrace>
+        {
+            new Bar
+            {
+                X = new List<object> { CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(months[0]),
+                                        CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(months[1]),
+                                        CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(months[2])},
+                Y = new List<object> { reports[0].HoursTotal, reports[1].HoursTotal, reports[2].HoursTotal },
+                Name = "Hours Worked"
+            },
+        };
         return Task.CompletedTask;
     }
 }

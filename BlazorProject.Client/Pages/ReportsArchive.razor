@@ -5,6 +5,7 @@
 @using BlazorProject.Client.Components
 @inject HttpClient Http
 @inject IWeeklyReportsHttpRepository WeeklyReportsHttRepo
+@inject IMonthlyReportsHttpRepository MonthlyReportsHttpRepo
 @inject NavigationManager NavManager
 
 @if (weeklyReports == null)
@@ -43,6 +44,14 @@ else
             </tr>
         </thead>
         <tbody>
+            @foreach (var report in monthlyReports)
+            {
+                <tr>
+                    <td>@report.Month</td>
+                    <td>@report.Year</td>
+                    <td><button class="btn btn-primary" @onclick="(e => ViewMonthlyReport(report.Year, report.Month))">View</button></td>
+                </tr>
+            }
         </tbody>
     </table>
 }
@@ -54,9 +63,13 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await WeeklyReportsHttRepo.GetAll();
+        var weeklyReportsQuery = await WeeklyReportsHttRepo.GetAll();
 
-        weeklyReports = result.ToList();
+        weeklyReports = weeklyReportsQuery.ToList();
+
+        var monthlyReportsQuery = await MonthlyReportsHttpRepo.GetAll();
+        monthlyReports = monthlyReportsQuery.ToList();
+
     }
 
     private void ViewWeeklyReport(int year, int weekNumber)
@@ -64,8 +77,8 @@ else
         NavManager.NavigateTo("/weeklyreport/" + year + "/" + weekNumber);
     }
 
-    private void ViewMonthlyReport()
+    private void ViewMonthlyReport(int year, int month)
     {
-
+        NavManager.NavigateTo("/monthlyreports/" + year + "/" + month);
     }
 }

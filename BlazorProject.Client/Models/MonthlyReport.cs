@@ -11,7 +11,6 @@ namespace BlazorProject.Client.Models
         [Required]
         [Range(2021, 2022, ErrorMessage = "Enter a valid year")]
         public int Year { get; set; }
-
         [Required]
         [Range(1, 12, ErrorMessage = "Enter a valid month number (1 - 12)")]
         public int Month { get; set; }
