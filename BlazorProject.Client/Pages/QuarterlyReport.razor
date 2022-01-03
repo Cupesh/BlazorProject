@@ -1,0 +1,121 @@
+﻿@page "/quarterlyreport/new/{year:int}/{quarter:int}"
+
+@using Plotly.Blazor
+@using Plotly.Blazor.Traces
+@using Plotly.Blazor.LayoutLib
+@using BlazorProject.Client.HttpRepository
+@using BlazorProject.Client.Models
+@using BlazorProject.Client.Components
+@using System.Globalization
+@inject HttpClient Http
+@inject IMonthlyReportsHttpRepository MonthlyReportsHttRepo
+@inject NavigationManager NavManager
+
+@if (isWorking)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <PlotlyChart Id="TestId" Config="config" Layout="layout" Data="data" @ref="chart" />
+}
+
+
+@code
+{
+    [Parameter]
+    public int year { get; set; }
+    [Parameter]
+    public int quarter { get; set; }
+
+    private bool isWorking { get; set; } = true;
+
+    private MonthlyReportsGenerator reportGenerator { get; set; }
+    private List<Models.MonthlyReport> reports { get; set; }
+
+    private List<int> months;
+
+    PlotlyChart chart;
+    Config config = new Config
+    {
+        Responsive = true
+    };
+
+    private Layout layout;
+
+    List<ITrace> data;
+
+    protected override async Task OnInitializedAsync()
+    {
+        reports = new List<Models.MonthlyReport>();
+        await GetReports();
+        await PopulateChart();
+
+        isWorking = false;
+    }
+
+    private async Task GetReports()
+    {
+        switch (quarter)
+        {
+            case 1:
+                months = new List<int>() { 1, 2, 3};
+                break;
+            case 2:
+                months = new List<int>() { 4, 5, 6 };
+                break;
+            case 3:
+                months = new List<int>() { 7, 8, 9 };
+                break;
+            case 4:
+                months = new List<int>() { 10, 11, 12 };
+                break;
+        }
+
+        foreach (int month in months)
+        {
+            reportGenerator = new MonthlyReportsGenerator(year, month);
+            await reportGenerator.GetData();
+            await reportGenerator.Generate();
+            var report = reportGenerator.Report;
+
+            reports.Add(report);
+        }
+    }
+
+    private Task PopulateChart()
+    {
+
+        layout = new Layout
+        {
+            Title = new Title
+            {
+                Text = "Quarterly report " + quarter.ToString() + "/" + year.ToString()
+            },
+            BarMode = BarModeEnum.Stack,
+            Height = 500
+        };
+
+        data = new List<ITrace>
+        {
+            new Bar
+            {
+                X = new List<object> { CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(months[0]),
+                                       CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(months[1]),
+                                       CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(months[2])},
+                Y = new List<object> { 5800, 3569, 7520 },
+                Name = "Payments received"
+            },
+            new Bar
+            {
+                X = new List<object> { CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(months[0]),
+                                       CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(months[1]),
+                                       CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(months[2])},
+                Y = new List<object> { 50, 5, 15},
+                Name = "Total hours"
+            },
+        };
+
+        return Task.CompletedTask;
+    }
+}

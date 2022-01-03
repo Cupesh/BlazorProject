@@ -28,6 +28,9 @@ namespace BlazorProject.Client.Models
         public Dictionary<Client, decimal> PaymentsPerClients = new();
         public Dictionary<Employee, decimal> PaymentsPerEmployee = new();
 
+        public decimal PaymentsTotal { get; set; }
+        public int HoursTotal { get; set; }
+
         public MonthlyReport()
         {
         }

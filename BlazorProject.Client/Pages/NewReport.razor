@@ -40,7 +40,17 @@
             </EditForm>
             break;
         case Models.ReportType.Quarterly:
-            <p>!!</p>
+            <EditForm Model="@quarterlyReportForm" OnValidSubmit="@GenerateQuarterlyReport">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <dl>
+                    <dt>Enter a year</dt>
+                    <dd><InputNumber @bind-Value="quarterlyReportForm.Year" /></dd>
+                    <dt>Enter a quarter</dt>
+                    <dd><InputNumber @bind-Value="quarterlyReportForm.Quarter" /></dd>
+                </dl>
+                <button type="submit">Generate report</button>
+            </EditForm>
             break;
         case Models.ReportType.Yearly:
             <p>!!!</p>
@@ -69,6 +79,7 @@ else
 
     private Models.WeeklyReport weeklyReportForm = new Models.WeeklyReport();
     private Models.MonthlyReport monthlyReportForm = new Models.MonthlyReport();
+    private Models.QuarterlyReport quarterlyReportForm = new Models.QuarterlyReport();
 
 
     private void GenerateWeeklyReport()
@@ -79,5 +90,10 @@ else
     private void GenerateMonthlyReport()
     {
         NavManager.NavigateTo("/monthlyreport/new/" + monthlyReportForm.Year + "/" + monthlyReportForm.Month);
+    }
+
+    private void GenerateQuarterlyReport()
+    {
+        NavManager.NavigateTo("/quarterlyreport/new/" + quarterlyReportForm.Year + "/" + quarterlyReportForm.Quarter);
     }
 }

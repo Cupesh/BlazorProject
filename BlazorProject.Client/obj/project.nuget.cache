@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "A6Lxwkepc9GZXAQk+4xBBAWnSCnLNe56d99AmlPONCupn4aSHjfd8ZcsgHwRzZlNTBA9wocR/KR5NqpYLuvapQ==",
+  "dgSpecHash": "UHsIvaDaW7MMVE30/yAh7kY01a1oOhl2P2dz1B2/+utarsg3C2mu74lGKG7xELJzaITTn4hXap4FwH2pElmxnw==",
   "success": true,
   "projectFilePath": "C:\\Users\\cupak\\source\\repos\\BlazorProject\\BlazorProject.Client\\BlazorProject.Client.csproj",
   "expectedPackageFiles": [
@@ -14,6 +14,7 @@
     "C:\\Users\\cupak\\.nuget\\packages\\microsoft.aspnetcore.components.webassembly.authentication\\5.0.12\\microsoft.aspnetcore.components.webassembly.authentication.5.0.12.nupkg.sha512",
     "C:\\Users\\cupak\\.nuget\\packages\\microsoft.aspnetcore.components.webassembly.devserver\\5.0.12\\microsoft.aspnetcore.components.webassembly.devserver.5.0.12.nupkg.sha512",
     "C:\\Users\\cupak\\.nuget\\packages\\microsoft.aspnetcore.metadata\\5.0.12\\microsoft.aspnetcore.metadata.5.0.12.nupkg.sha512",
+    "C:\\Users\\cupak\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
     "C:\\Users\\cupak\\.nuget\\packages\\microsoft.extensions.configuration\\5.0.0\\microsoft.extensions.configuration.5.0.0.nupkg.sha512",
     "C:\\Users\\cupak\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\5.0.0\\microsoft.extensions.configuration.abstractions.5.0.0.nupkg.sha512",
     "C:\\Users\\cupak\\.nuget\\packages\\microsoft.extensions.configuration.binder\\5.0.0\\microsoft.extensions.configuration.binder.5.0.0.nupkg.sha512",
@@ -30,8 +31,10 @@
     "C:\\Users\\cupak\\.nuget\\packages\\microsoft.extensions.primitives\\5.0.0\\microsoft.extensions.primitives.5.0.0.nupkg.sha512",
     "C:\\Users\\cupak\\.nuget\\packages\\microsoft.jsinterop\\5.0.12\\microsoft.jsinterop.5.0.12.nupkg.sha512",
     "C:\\Users\\cupak\\.nuget\\packages\\microsoft.jsinterop.webassembly\\5.0.12\\microsoft.jsinterop.webassembly.5.0.12.nupkg.sha512",
+    "C:\\Users\\cupak\\.nuget\\packages\\plotly.blazor\\2.3.1\\plotly.blazor.2.3.1.nupkg.sha512",
     "C:\\Users\\cupak\\.nuget\\packages\\system.io.pipelines\\5.0.1\\system.io.pipelines.5.0.1.nupkg.sha512",
     "C:\\Users\\cupak\\.nuget\\packages\\system.net.http.json\\5.0.0\\system.net.http.json.5.0.0.nupkg.sha512",
+    "C:\\Users\\cupak\\.nuget\\packages\\system.text.json\\5.0.2\\system.text.json.5.0.2.nupkg.sha512",
     "C:\\Users\\cupak\\.nuget\\packages\\microsoft.netcore.app.runtime.browser-wasm\\5.0.12\\microsoft.netcore.app.runtime.browser-wasm.5.0.12.nupkg.sha512"
   ],
   "logs": []

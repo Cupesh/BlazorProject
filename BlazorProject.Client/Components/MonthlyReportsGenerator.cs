@@ -117,6 +117,9 @@ namespace BlazorProject.Client.Components
                     Report.PaymentsPerEmployee[employee] += payment;
                 }
             }
+
+            Report.PaymentsTotal = Report.PaymentsPerContracts.Sum(x => x.Value);
+            Report.HoursTotal = Report.SumHoursByClient.Sum(x => x.Value);
         }
 
         private async Task<List<Contract>> GetContracts()
