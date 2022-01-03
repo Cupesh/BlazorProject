@@ -1,0 +1,121 @@
+﻿@page "/yearlyreport/new/{year:int}"
+
+@using Plotly.Blazor
+@using Plotly.Blazor.Traces
+@using Plotly.Blazor.LayoutLib
+@using BlazorProject.Client.HttpRepository
+@using BlazorProject.Client.Models
+@using BlazorProject.Client.Components
+@using System.Globalization
+@inject HttpClient Http
+@inject IMonthlyReportsHttpRepository MonthlyReportsHttRepo
+@inject NavigationManager NavManager
+
+@if (isWorking)
+{
+    <p>Loading...</p>
+}
+else
+{
+    if (reports.Count < 12)
+    {
+        <p>Please generate reports for every month before generating a yearly report</p>
+    }
+    else
+    {
+        <PlotlyChart Id="TestId" Config="config" Layout="layout" Data="data" @ref="chart" />
+    }
+}
+
+@code {
+    [Parameter]
+    public int year { get; set; }
+    private bool isWorking { get; set; } = true;
+    private List<Models.MonthlyReport> reports { get; set; }
+    private MonthlyReportsGenerator reportGenerator { get; set; }
+    private PlotlyChart chart;
+    private Config config = new Config
+    {
+        Responsive = true
+    };
+    private Layout layout;
+    private List<ITrace> data;
+
+    protected override async Task OnInitializedAsync()
+    {
+        reports = new List<Models.MonthlyReport>();
+        await FilterReports();
+
+        if (reports.Count() < 12)
+        {
+            isWorking = false;
+            return;
+        }
+
+        Console.WriteLine(reports[0].PaymentsTotal);
+
+        await PopulateChart();
+
+        isWorking = false;
+    }
+
+    private Task PopulateChart()
+    {
+
+        layout = new Layout
+        {
+            Title = new Title
+            {
+                Text = "Payments received"
+            },
+            BarMode = BarModeEnum.Stack,
+            Height = 500
+        };
+
+        data = new List<ITrace>
+        {
+            new Bar
+            {
+                X = new List<object> { CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(1),
+                                        CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(2),
+                                        CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(3),
+                                        CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(4),
+                                        CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(5),
+                                        CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(6),
+                                        CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(7),
+                                        CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(8),
+                                        CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(9),
+                                        CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(10),
+                                        CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(11),
+                                        CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(12)},
+                Y = new List<object> { reports[0].PaymentsTotal,
+                                       reports[1].PaymentsTotal,
+                                       reports[2].PaymentsTotal,
+                                       reports[3].PaymentsTotal,
+                                       reports[4].PaymentsTotal,
+                                       reports[5].PaymentsTotal,
+                                       reports[6].PaymentsTotal,
+                                       reports[7].PaymentsTotal,
+                                       reports[8].PaymentsTotal,
+                                       reports[9].PaymentsTotal,
+                                       reports[10].PaymentsTotal,
+                                       reports[11].PaymentsTotal },
+                Name = "Payments received"
+            },
+        };
+        return Task.CompletedTask;
+    }
+
+    private async Task FilterReports()
+    {
+        for (int i = 1; i < 13; i++)
+        {
+            reportGenerator = new MonthlyReportsGenerator(year, i);
+            await reportGenerator.GetData();
+            await reportGenerator.Generate();
+            var report = reportGenerator.Report;
+
+            reports.Add(report);
+        }
+    }
+}
