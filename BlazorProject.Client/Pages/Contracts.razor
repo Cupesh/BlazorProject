@@ -33,7 +33,7 @@ else
                     <td>@contract.DateRequested.ToString("dd-MM-yyyy")</td>
                     @foreach (var client in clients)
                     {
-                        @if (client.Id == contract.Contractor) 
+                        @if (client.Id == contract.Contractor)
                         {
                             <td>@client.Name</td>
                         }
@@ -54,6 +54,14 @@ else
             .del:hover {
                 background-color: darkred;
             }
+    </style>
+    <style type="text/css">
+        td {
+            padding: 0 30px;
+        }
+        th {
+            padding: 0 30px;
+        }
     </style>
 }
 
